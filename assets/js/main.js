@@ -114,6 +114,7 @@ function updateMarkers(result) {
       // drop a number only if clustersize is > 1
       icon = {
         path: test,
+        visible: false,
         //path:`${NumSvg[1]}, ${NumSvg[5]}`,
         //url: `data:image/svg+xml;utf-8, ${NumCSS[1]}`,
         fillColor: "#FF0000",
