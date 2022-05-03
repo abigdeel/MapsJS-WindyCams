@@ -6,28 +6,31 @@
 // Disclaimer, guidance, etc.
 
 // JS stuff pending:
-// don't remove fullText markers/infowindows
-// add history
+// don't remove fullText markers/infowindows ????
+// add history localStorage
 // bbox vs viewport?
 // maps fetch, show clustersize in count + update fulltext.
+    // fix zoom + 1 and zoom change issue.
 // iframe for live / timelapse
+// refreshing cams popup...
 
-let map, infoWindow, property;
+let map, infoWindow;
 let markers = [];
 let bubbles = [];
+
 let live = document.getElementById("live");
 let hd = document.getElementById("hd");
 let total = document.getElementById("total");
 let filtered = document.getElementById("filtered");
 let shown = document.getElementById("shown");
 
-function refreshCams(pos, zoom) {
-  let property;
-  if (live == true && hd == true) {
+function refreshCams(pos, mid, zoom) {
+  let [nearby, category, property] = Array(3).fill("");
+  if (live.checked == true && hd.checked == true) {
     property = "property=live,hd/";
-  } else if (live == true && hd == false) {
+  } else if (live.checked == true && hd.checked == false) {
     property = "property=live/";
-  } else if (live == false && hd == true) {
+  } else if (live.checked == false && hd.checked == true) {
     property = "property=hd/";
   } else {
     property = "";
@@ -43,41 +46,45 @@ function refreshCams(pos, zoom) {
     redirect: "follow",
   };
 
-  /*   fetch(
-  `https://api.windy.com/api/webcams/v2/map/${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h},${zoom}/limit=20/property=live&?show=webcams:location, map, player, url`, requestOptions
-  ) */
-
   fetch(
-    `https://api.windy.com/api/webcams/v2/list/bbox=${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}/${property}limit=25&?show=webcams:basic, category, image, location, map, player, property, statistics, url, user;properties`,
+    `https://api.windy.com/api/webcams/v2/map/${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h},${zoom}/limit=150/property=live&?show=webcams:basic, category, image, location, map, player, property, statistics, url, user;properties`,
     requestOptions
   )
-    // add image, status, statistics, property?
+    /*  fetch(
+    `https://api.windy.com/api/webcams/v2/list/bbox=${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}/${nearby}${property}limit=25&?show=webcams:basic, category, image, location, map, player, property, statistics, url, user;properties`,
+    requestOptions
+  ) 
+ */
     .then((response) => response.json())
-    .then((result) => {
-      console.log(result);
+    .then((result) => updateMarkers(result))
+    .catch((error) => console.log("error", error));
+}
 
-      // update stats
+function updateMarkers(result) {
+  // clears markers from map and window text
+  function clearMarkers() {
+    for (let i = 0; i < markers.length; i++) {
+      markers[i].setMap(null);
+    }
+    markers = [];
+    infoText = [];
 
-      // clears markers from map and window text
-      function clearMarkers() {
-        for (let i = 0; i < markers.length; i++) {
-          markers[i].setMap(null);
-        }
+    for (let i = 0; i < bubbles.length; i++) {
+      bubbles[i].setMap(null);
+    }
 
-        markers = [];
-        bubbles = [];
-        infoText = [];
-      }
+    bubbles = [];
+  }
 
-      clearMarkers();
+  clearMarkers();
 
-      // for each camera returned
-      result.result.webcams.forEach((cam, index) => {
-        // generate an info window
+  // for each camera returned
+  result.result.webcams.forEach((cam, index) => {
+    // generate an info window
 
-        /*       if (cam.player.live.available == false) */
-        const infowindow = new google.maps.InfoWindow({
-          fullText: `
+    /*       if (cam.player.live.available == false) */
+    const infowindow = new google.maps.InfoWindow({
+      fullText: `
           <div id="camtext">
             <h3>${cam.title}</h3>
             <a id="thumb" href="#"><img src=${cam.image.current.thumbnail} alt="thumbnail" /></a>
@@ -92,77 +99,92 @@ function refreshCams(pos, zoom) {
 
             </div>
             `,
-          smallText: cam.title,
-          content: cam.title,
-          naxWidth: 400,
+      smallText: cam.title,
+      content: cam.title,
+      naxWidth: 400,
 
-          //disableAutoPan: true
+      //disableAutoPan: true
+    });
+    infoText.push(infowindow);
+
+    test = `M160 32.01c-88.37 0-160 71.63-160 160v127.1c0 88.37 71.63 160 160 160s160-71.63 160-160V192C320 103.6 248.4 32.01 160 32.01zM256 320c0 52.93-43.06 96-96 96c-52.93 0-96-43.07-96-96V192c0-52.94 43.07-96 96-96c52.94 0 96 43.06 96 96V320z`;
+
+    // drop markers for cams on map
+    window.setTimeout(() => {
+      // drop a number only if clustersize is > 1
+      icon = {
+        path: test,
+        //path:`${NumSvg[1]}, ${NumSvg[5]}`,
+        //url: `data:image/svg+xml;utf-8, ${NumCSS[1]}`,
+        fillColor: "#FF0000",
+        fillOpacity: 0.6,
+        anchor: new google.maps.Point(0, 50),
+        strokeWeight: 0,
+        scale: 0.03,
+      };
+
+      // drop nunber marker, click action to zoom in, refresh maps.
+      if (cam.map.clustersize > 1) {
+        bubble = new google.maps.Marker({
+          map,
+          animation: google.maps.Animation.DROP,
+          position: { lat: cam.location.latitude, lng: cam.location.longitude },
+          icon,
         });
-        infoText.push(infowindow);
 
-        // drop markers for cams on map
-        window.setTimeout(() => {
-          const marker = new google.maps.Marker({
-            map,
-            animation: google.maps.Animation.DROP,
-            position: { lat: cam.location.latitude, lng: cam.location.longitude },
-          });
-          markers.push(marker);
+        bubbles.push(bubble);
+      }
 
-          const image =
-            "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png";
-
-          const bubble = new google.maps.Marker({
-            map,
-            animation: google.maps.Animation.DROP,
-            position: { lat: cam.location.latitude, lng: cam.location.longitude },
-            icon: image
-          });
-          bubbles.push(bubble);
-
-          // on mouseover, open little text
-          marker.addListener("mouseover", () => {
-            infowindow.open({
-              anchor: marker,
-              map,
-              shouldFocus: false,
-            });
-          });
-
-          // on mouseout, close little text
-          marker.addListener("mouseout", () => {
-            if (infowindow.content == infowindow.smallText) {
-              infowindow.close({
-                anchor: marker,
-                map,
-                shouldFocus: false,
-              });
-            }
-          });
-
-          // on click, open bigtext
-          marker.addListener("click", () => {
-            infowindow.setContent(infowindow.fullText);
-          });
-
-          // on click, open zoom in one level
-          bubble.addListener("click", () => {
-            //zoom in one level
-          });
-
-          // on closeclick, close bigtext
-          infowindow.addListener("closeclick", () => {
-            infowindow.close({
-              anchor: marker,
-              map,
-              shouldFocus: false,
-            });
-            infowindow.setContent(infowindow.smallText);
-          });
-        }, 50 * index);
+      // drop the camera market itself. click to open cam popup.
+      const marker = new google.maps.Marker({
+        map,
+        animation: google.maps.Animation.DROP,
+        position: { lat: cam.location.latitude, lng: cam.location.longitude },
       });
-    })
-    .catch((error) => console.log("error", error));
+      markers.push(marker);
+
+      // on mouseover, open little text
+      marker.addListener("mouseover", () => {
+        infowindow.open({
+          anchor: marker,
+          map,
+          shouldFocus: false,
+        });
+      });
+
+      // on mouseout, close little text
+      marker.addListener("mouseout", () => {
+        if (infowindow.content == infowindow.smallText) {
+          infowindow.close({
+            anchor: marker,
+            map,
+            shouldFocus: false,
+          });
+        }
+      });
+
+      // on click, open bigtext
+      marker.addListener("click", () => {
+        infowindow.setContent(infowindow.fullText);
+      });
+
+      // on click, open zoom in one level, refresh cams.
+            bubble.addListener("click", function(event) {
+            map.setZoom(map.zoom + 1);
+            map.setCenter(event.getPosition());
+          }); 
+
+      // on closeclick, close bigtext
+      infowindow.addListener("closeclick", () => {
+        infowindow.close({
+          anchor: marker,
+          map,
+          shouldFocus: false,
+        });
+        infowindow.setContent(infowindow.smallText);
+      });
+    }, 50 * index);
+  });
 }
 
 function initMap() {
@@ -176,24 +198,25 @@ function initMap() {
   });
 
   pos = map.getBounds();
-  //refreshCams(pos, map.zoom)
+  mid = map.getCenter().toJSON();
+  //refreshCams(pos, mid, map.zoom)
 
   infoWindow = new google.maps.InfoWindow();
 
   map.addListener("dragend", () => {
     pos = map.getBounds();
-    refreshCams(pos, map.zoom);
+    mid = map.getCenter().toJSON();
+    refreshCams(pos, mid, map.zoom);
   });
 
   map.addListener("zoom_changed", () => {
     pos = map.getBounds();
-    refreshCams(pos, map.zoom);
-    console.log(pos);
+    refreshCams(pos, mid, map.zoom);
   });
 
   const locationButton = document.createElement("button");
 
-  locationButton.textContent = "Pan to Current Location";
+  locationButton.textContent = "Locate Me";
   locationButton.classList.add("custom-map-control-button");
   map.controls[google.maps.ControlPosition.TOP_CENTER].push(locationButton);
   locationButton.addEventListener("click", () => {
