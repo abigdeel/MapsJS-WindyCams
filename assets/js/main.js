@@ -7,35 +7,63 @@
 
 // JS stuff pending:
 // don't remove fullText markers/infowindows ????
-// add history localStorage
+// add history localStorage, also filters
 // bbox vs viewport?
 // maps fetch, show clustersize in count + update fulltext.
-    // fix zoom + 1 and zoom change issue.
+// fix zoom + 1 and zoom change issue.
 // iframe for live / timelapse
 // refreshing cams popup...
+// show local time on infow!
+// close infow if clicking outside of infow
 
-let map, infoWindow;
+//icon 1 always camera
+//icon 2 either cluster or LIVE
+
+let map, infoWindow, apiType, apiZoom;
 let markers = [];
 let bubbles = [];
 
+let filters = document.getElementById("filters");
+let category = document.getElementsByClassName("category");
 let live = document.getElementById("live");
 let hd = document.getElementById("hd");
 let total = document.getElementById("total");
 let filtered = document.getElementById("filtered");
 let shown = document.getElementById("shown");
+let [nearby, property, catStr] = Array(3).fill("");
 
-function refreshCams(pos, mid, zoom) {
-  let [nearby, category, property] = Array(3).fill("");
-  if (live.checked == true && hd.checked == true) {
-    property = "property=live,hd/";
-  } else if (live.checked == true && hd.checked == false) {
-    property = "property=live/";
-  } else if (live.checked == false && hd.checked == true) {
-    property = "property=hd/";
-  } else {
+function filterCheck(zoom) {
+  if (filters.checked == false) {
+    apiType = "map/";
+    apiZoom = `,${zoom}`;
     property = "";
-  }
+    catStr = "";
 
+    // grey out all filters too
+  } else {
+    apiType = "list/bbox=";
+    apiZoom = "";
+    catStr = "";
+    for (const prop in category) {
+      if (category[prop].checked == true) {
+        catStr += `${category[prop].value},`;
+      }
+    }
+    if (catStr.length > 1) {
+      catStr = `category=${catStr.slice(0, catStr.length - 1)}/`;
+    }
+    console.log(catStr);
+    if (live.checked == true && hd.checked == true) {
+      property = "property=live,hd/";
+    } else if (live.checked == true && hd.checked == false) {
+      property = "property=live/";
+    } else if (live.checked == false && hd.checked == true) {
+      property = "property=hd/";
+    }
+  }
+}
+
+async function refreshCams(pos) {
   let myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
   myHeaders.append("x-windy-key", "O1gjC9qelwQKifrT2vlmlmPK7A5F3MhJ");
@@ -46,54 +74,68 @@ function refreshCams(pos, mid, zoom) {
     redirect: "follow",
   };
 
-  fetch(
-    `https://api.windy.com/api/webcams/v2/map/${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h},${zoom}/limit=150/property=live&?show=webcams:basic, category, image, location, map, player, property, statistics, url, user;properties`,
+  await fetch(
+    `https://api.windy.com/api/webcams/v2/${apiType}${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
     requestOptions
   )
-    /*  fetch(
-    `https://api.windy.com/api/webcams/v2/list/bbox=${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}/${nearby}${property}limit=25&?show=webcams:basic, category, image, location, map, player, property, statistics, url, user;properties`,
-    requestOptions
-  ) 
- */
     .then((response) => response.json())
     .then((result) => updateMarkers(result))
     .catch((error) => console.log("error", error));
 }
 
-function updateMarkers(result) {
-  // clears markers from map and window text
-  function clearMarkers() {
-    for (let i = 0; i < markers.length; i++) {
-      markers[i].setMap(null);
-    }
-    markers = [];
-    infoText = [];
-
-    for (let i = 0; i < bubbles.length; i++) {
-      bubbles[i].setMap(null);
-    }
-
-    bubbles = [];
+// clears markers from map and window text
+function clearMarkers() {
+  for (let i = 0; i < markers.length; i++) {
+    markers[i].setMap(null);
   }
+  markers = [];
+  infoText = [];
 
-  clearMarkers();
+  for (let i = 0; i < bubbles.length; i++) {
+    bubbles[i].setMap(null);
+  }
+  bubbles = [];
+}
+
+function updateMarkers(result) {
+  console.log(result);
+  filteredCount = 0;
+
+  camimage = {
+    url: function () {
+      if (filters.checked == false) {
+        return "https://adeels.ca/assets/icons/cam.png";
+      } else if (live.checked == true) {
+        return "https://adeels.ca/assets/icons/cam.png";
+      }
+    },
+    origin: new google.maps.Point(0, 0),
+    anchor: new google.maps.Point(0, 0),
+  };
+
+  // values for camera image, label box sizes
+  let boxPaths = {
+    1: "",
+    2: "M 37.667,75.318 28.253,59.015 C 23.363382,58.880446 18.431789,59.337587 13.578168,58.669012 5.3675157,57.160976 -0.6687999,48.987657 0,40.724081 0.05498383,32.243353 -0.11230207,23.755185 0.08793213,15.279294 0.77863651,6.4338464 9.2734285,-0.66304946 18.075766,0.015 31.929808,0.04770532 45.787087,-0.05067707 59.639091,0.06466363 68.657304,0.5292434 76.032904,9.1335521 75.333,18.090766 75.27796,26.64321 75.445374,35.203099 75.24507,43.750706 74.554365,52.596154 66.059573,59.693049 57.257236,59.015 H 47.078002 l -9.411,16.303 z",
+    3: "",
+    4: "",
+  };
 
   // for each camera returned
+  // refreshing maps popup hide
   result.result.webcams.forEach((cam, index) => {
+    filteredCount += cam.map.clustersize;
     // generate an info window
-
-    /*       if (cam.player.live.available == false) */
     const infowindow = new google.maps.InfoWindow({
       fullText: `
           <div id="camtext">
             <h3>${cam.title}</h3>
             <a id="thumb" href="#"><img src=${cam.image.current.thumbnail} alt="thumbnail" /></a>
-            Watch <b><a href=https://webcams.windy.com/webcams/stream/${cam.id}>LIVE</b> | <b><a href=${cam.player.day.embed}>Timelapse</a></b>
+            Watch <b><a href=http://webcams.windy.com/webcams/stream/${cam.id}>LIVE</b> | <b><a href=${cam.player.day.embed}>Timelapse</a></b>
             <ul>
-            <li><b>Location:</b> <a href=${cam.location.wikipedia}>${cam.location.city}. ${cam.location.region}</a></li>
-            <li><b>Coordinates:</b> ${cam.location.latitude}. ${cam.location.longitude}</li>
-            <li><b>Views:</b> ${cam.statistics.views}</li>
-            <li><b>Status:</b> ${cam.status}</li>
+                <li><b>Location:</b> <a href=${cam.location.wikipedia}>${cam.location.city}. ${cam.location.region}</a></li>
+                <li><b>Coordinates:</b> ${cam.location.latitude}. ${cam.location.longitude}</li>
+                <li><b>Views:</b> ${cam.statistics.views}</li>
             </ul>
             <br>
 
@@ -103,44 +145,71 @@ function updateMarkers(result) {
       content: cam.title,
       naxWidth: 400,
 
-      //disableAutoPan: true
+      disableAutoPan: true,
     });
     infoText.push(infowindow);
 
-    test = `M160 32.01c-88.37 0-160 71.63-160 160v127.1c0 88.37 71.63 160 160 160s160-71.63 160-160V192C320 103.6 248.4 32.01 160 32.01zM256 320c0 52.93-43.06 96-96 96c-52.93 0-96-43.07-96-96V192c0-52.94 43.07-96 96-96c52.94 0 96 43.06 96 96V320z`;
-
     // drop markers for cams on map
     window.setTimeout(() => {
-      // drop a number only if clustersize is > 1
-      icon = {
-        path: test,
-        visible: false,
-        //path:`${NumSvg[1]}, ${NumSvg[5]}`,
-        //url: `data:image/svg+xml;utf-8, ${NumCSS[1]}`,
-        fillColor: "#FF0000",
-        fillOpacity: 0.6,
-        anchor: new google.maps.Point(0, 50),
-        strokeWeight: 0,
-        scale: 0.03,
-      };
-
-      // drop nunber marker, click action to zoom in, refresh maps.
-      if (cam.map.clustersize > 1) {
+      //if filters are off and there is a cluster to show, show cluster count.
+      if (filters.checked == false && cam.map.clustersize > 1) {
+        boxSize = cam.map.clustersize.toString().length;
         bubble = new google.maps.Marker({
           map,
           animation: google.maps.Animation.DROP,
           position: { lat: cam.location.latitude, lng: cam.location.longitude },
-          icon,
+          label: {
+            text: `${cam.map.clustersize}`,
+            className: "bubbles",
+          },
+          icon: {
+            path: `${boxPaths[2]}`,
+            fillColor: "red",
+            strokeColor: "black",
+            strokeWeight: 1,
+            scale: 0.4,
+            strokeOpacity: 1.0,
+            fillOpacity: 0.8,
+            anchor: new google.maps.Point(0, 70),
+          },
         });
 
+        //add zoom in event listener to bubble
+        bubble.addListener("click", function (event) {
+          map.panTo(event.latLng);
+          map.setZoom(map.getZoom() + 1);
+        });
         bubbles.push(bubble);
       }
 
-      // drop the camera market itself. click to open cam popup.
+      //   } else if (cam.player.live.available == true) {
+      //     bubble = new google.maps.Marker({
+      //       map,
+      //       animation: google.maps.Animation.DROP,
+      //       position: { lat: cam.location.latitude, lng: cam.location.longitude },
+      //       label: {
+      //         text: "LIVE",
+      //         className: "bubbles",
+      //       },
+      //       icon: {
+      //         path: `${boxPaths[2]}`,
+      //         fillColor: "red",
+      //         strokeColor: "black",
+      //         strokeWeight: 1,
+      //         scale: 0.4,
+      //         strokeOpacity: 1,
+      //         fillOpacity: 0.7,
+      //         anchor: new google.maps.Point(0, 70),
+      //       },
+      //     });
+      //   }
+
+      // drop the camera marker itself. click to open cam popup.
       const marker = new google.maps.Marker({
         map,
         animation: google.maps.Animation.DROP,
         position: { lat: cam.location.latitude, lng: cam.location.longitude },
+        icon: camimage,
       });
       markers.push(marker);
 
@@ -170,10 +239,6 @@ function updateMarkers(result) {
       });
 
       // on click, open zoom in one level, refresh cams.
-            bubble.addListener("click", function(event) {
-            map.setZoom(map.zoom + 1);
-            map.setCenter(event.getPosition());
-          }); 
 
       // on closeclick, close bigtext
       infowindow.addListener("closeclick", () => {
@@ -184,8 +249,12 @@ function updateMarkers(result) {
         });
         infowindow.setContent(infowindow.smallText);
       });
-    }, 50 * index);
+    }, 35 * index);
   });
+
+  total.innerText = `Total webcams: 55,490`;
+  filtered.innerText = `Matching filters: ${filteredCount}`;
+  shown.innerText = `Shown on map: ${result.result.limit}`;
 }
 
 function initMap() {
@@ -200,19 +269,24 @@ function initMap() {
 
   pos = map.getBounds();
   mid = map.getCenter().toJSON();
-  //refreshCams(pos, mid, map.zoom)
 
   infoWindow = new google.maps.InfoWindow();
 
-  map.addListener("dragend", () => {
+  map.addListener("idle", () => {
+    // refreshing maps popup
     pos = map.getBounds();
     mid = map.getCenter().toJSON();
-    refreshCams(pos, mid, map.zoom);
+    clearMarkers();
+    filterCheck(map.zoom);
+    refreshCams(pos);
+  });
+
+  map.addListener("dragend", () => {
+    clearMarkers();
   });
 
   map.addListener("zoom_changed", () => {
-    pos = map.getBounds();
-    refreshCams(pos, mid, map.zoom);
+    clearMarkers();
   });
 
   const locationButton = document.createElement("button");
@@ -256,6 +330,7 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
   infoWindow.open(map);
 }
 
+//pop up load function
 $(window).on("load", function () {
   $(".show-player").magnificPopup({
     type: "iframe",
@@ -264,6 +339,7 @@ $(window).on("load", function () {
   });
 });
 
+// checkbox function
 (function ($) {
   var CheckboxDropdown = function (el) {
     var _this = this;
