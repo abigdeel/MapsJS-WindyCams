@@ -6,8 +6,8 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Google+Sans:400,500,700"
     />
-    <link rel="stylesheet" href="css/popup.css" />
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="assets/css/popup.css" />
+    <link rel="stylesheet" href="assets/css/style.css" />
     <!-- <link rel="stylesheet" href="css/autocomplete.min.css" /> -->
     <title>Webcams of the World</title>
     <link rel="icon" href="https://embedgooglemaps.org/favicon.png" sizes="32x32" />
@@ -24,7 +24,7 @@
 
     <section class="welcome">
       <h2>Welcome</h2>
-      <p>This site uses Google Maps and Windy's truly massive repository of webcams!</p>
+      <p>This site combines Google Maps and Windy's truly massive repository of webcams! (65,000+)</p>
       <p>Many of the webcams are 24 hour+ timelapses, but there are thousands of live cameras too.</p>
     </section>
 
@@ -60,122 +60,124 @@
 
     <a class="show-player" href="https://webcams.windy.com/webcams/stream/1585916755">Open popup</a>
 
-    <div id="map"></div>
-
     <section class="options">
-      <span>Enable Filters</span>
+      <div class="filters HD">
+        Enable Filters
+        <input type="checkbox" id="filters" name="filters" />
+        <label for="filters">filters</label>
+      </div>
       <div class="dropdown" data-control="checkbox-dropdown">
         <span>Categories:</span>
         <label class="dropdown-label">Select</label>
 
         <div class="dropdown-list">
-          <a href="#" data-toggle="check-all" class="dropdown-option"> Check All </a>
+          <!-- <a href="#" data-toggle="check-all" class="dropdown-option"> Check All </a> -->
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="airport" />
+            <input type="checkbox" class="category" name="dropdown-group" value="airport" />
             Airport
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="area" />
+            <input type="checkbox" class="category" name="dropdown-group" value="area" />
             Area
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="bay" />
+            <input type="checkbox" class="category" name="dropdown-group" value="bay" />
             Bay
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="beach" />
+            <input type="checkbox" class="category" name="dropdown-group" value="beach" />
             Beach
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="building" />
+            <input type="checkbox" class="category" name="dropdown-group" value="building" />
             Building
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="camping" />
+            <input type="checkbox" class="category" name="dropdown-group" value="camping" />
             Camping
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="city" />
+            <input type="checkbox" class="category" name="dropdown-group" value="city" />
             City
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="coast" />
+            <input type="checkbox" class="category" name="dropdown-group" value="coast" />
             Coast
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="forest" />
+            <input type="checkbox" class="category" name="dropdown-group" value="forest" />
             Forest
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="golf" />
+            <input type="checkbox" class="category" name="dropdown-group" value="golf" />
             Golfcourse
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="harbor" />
+            <input type="checkbox" class="category" name="dropdown-group" value="harbor" />
             Harbor
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="resort" />
+            <input type="checkbox" class="category" name="dropdown-group" value="resort" />
             Holiday Resort
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="island" />
+            <input type="checkbox" class="category" name="dropdown-group" value="island" />
             Island
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="lake" />
+            <input type="checkbox" class="category" name="dropdown-group" value="lake" />
             Lake / River
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="landscape" />
+            <input type="checkbox" class="category" name="dropdown-group" value="landscape" />
             Landscape
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="marketplace" />
+            <input type="checkbox" class="category" name="dropdown-group" value="marketplace" />
             Marketplace
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="mountain" />
+            <input type="checkbox" class="category" name="dropdown-group" value="mountain" />
             Mountain / Canyon
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="other" />
+            <input type="checkbox" class="category" name="dropdown-group" value="other" />
             Other
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="park" />
+            <input type="checkbox" class="category" name="dropdown-group" value="park" />
             Park
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="pool" />
+            <input type="checkbox" class="category" name="dropdown-group" value="pool" />
             Pool
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="indoor" />
+            <input type="checkbox" class="category" name="dropdown-group" value="indoor" />
             Public Indoor
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="meteo" />
+            <input type="checkbox" class="category" name="dropdown-group" value="meteo" />
             Sky
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="sportarea" />
+            <input type="checkbox" class="category" name="dropdown-group" value="sportarea" />
             Sport Area
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="square" />
+            <input type="checkbox" class="category" name="dropdown-group" value="square" />
             Square / Alley
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="traffic" />
+            <input type="checkbox" class="category" name="dropdown-group" value="traffic" />
             Street / Traffic
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="underwater" />
+            <input type="checkbox" class="category" name="dropdown-group" value="underwater" />
             Underwater
           </label>
           <label class="dropdown-option">
-            <input type="checkbox" name="dropdown-group" value="water" />
+            <input type="checkbox" class="category" name="dropdown-group" value="water" />
             Water
           </label>
         </div>
@@ -203,17 +205,15 @@
     <div id="map"></div>
     <span>Note: You may see some ads on webcams from Windy.</span>
     <span>If you like this project, considering donating to cover API costs.</span>
-    
-    
-    
+
     <footer>
       <p>Copyright Adeel Syed 2022</p>
     </footer>
-    <script src="js/jquery-3.2.1.slim.min.js"></script>
+    <script src="assets/js/jquery-3.2.1.slim.min.js"></script>
+    <script src="assets/js/popup.js"></script>
+    <script src="assets/js/main.js"></script>
 
-    <script src="js/popup.js"></script>
-    <script src="js/main.js"></script>
-
+    <script src="https://maps.googleapis.com/maps/api/js?sensor=false&callback=initMap"></script>
     <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC8eIhUxFU4I2B9rrREJ9moK1W6-BQt6T4&libraries=places&callback=initMap"></script> -->
     <!-- <script src="js/autocomplete.min.js"></script> -->
   </body>

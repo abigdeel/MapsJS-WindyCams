@@ -1,25 +1,15 @@
 // Todo list
 ////////////////
 // Design site:
-// Filter all toggle on / off
-// Add total, filtered, etc.
 // Disclaimer, guidance, etc.
 
 // JS stuff pending:
-// don't remove fullText markers/infowindows ????
-// add history localStorage, also filters
+// add history localStorage
 // bbox vs viewport?
-// maps fetch, show clustersize in count + update fulltext.
-// fix zoom + 1 and zoom change issue.
 // iframe for live / timelapse
 // refreshing cams popup...
-// show local time on infow!
-// close infow if clicking outside of infow
 
-//icon 1 always camera
-//icon 2 either cluster or LIVE
-
-let map, infoWindow, apiType, apiZoom;
+let map, infoWindow, apiType, apiZoom, camImage;
 let markers = [];
 let bubbles = [];
 
@@ -32,12 +22,58 @@ let filtered = document.getElementById("filtered");
 let shown = document.getElementById("shown");
 let [nearby, property, catStr] = Array(3).fill("");
 
+document.querySelector(".options").addEventListener("click", function (e) {
+    //handle filter toggle on/off
+  if (e.target.id == "filters") {
+    if (filters.checked == false) {
+      live.last = live.checked;
+      hd.last = hd.checked;
+      live.checked = false;
+      hd.checked = false;
+      if (category.curr) {
+        category.last = category.curr.checked;
+        category.curr.checked == false || category.curr.click();
+      }
+    } else {
+      live.checked = live.last;
+      hd.checked = hd.last;
+      if (category.curr) {
+        category.curr.checked == category.last || category.curr.click();
+      }
+    }
+  }
+
+  //only allow one checked box, store last checked box.
+  if (e.target.id == "live" || e.target.id == "hd" || e.target.className == "category") {
+    if (e.target.className == "category") {
+      if (document.querySelectorAll("[class='category']:checked").length >= 1) {
+        category.curr = e.target;
+        document.querySelectorAll("[class='category']:checked").forEach((box) => {
+          if (box.checked == true && box.value != category.curr.value) {
+            box.checked = false;
+          }
+        });
+      } else {
+      }
+    }
+
+  //handle filter toggle being set if anything else is selected or unselected
+    if (live.checked == true || hd.checked == true || category.curr.checked == true) {
+      filters.checked = true;
+    } else if (live.checked == false && hd.checked == false && category.curr.checked == false) {
+      filters.checked = false;
+    }
+  }
+});
+
+
 function filterCheck(zoom) {
   if (filters.checked == false) {
     apiType = "map/";
     apiZoom = `,${zoom}`;
     property = "";
     catStr = "";
+    camImage = "https://adeels.ca/assets/icons/cam.png";
 
     // grey out all filters too
   } else {
@@ -52,11 +88,13 @@ function filterCheck(zoom) {
     if (catStr.length > 1) {
       catStr = `category=${catStr.slice(0, catStr.length - 1)}/`;
     }
-    console.log(catStr);
+
     if (live.checked == true && hd.checked == true) {
       property = "property=live,hd/";
+      camImage = "https://adeels.ca/assets/icons/livecam.png";
     } else if (live.checked == true && hd.checked == false) {
       property = "property=live/";
+      camImage = "https://adeels.ca/assets/icons/livecam.png";
     } else if (live.checked == false && hd.checked == true) {
       property = "property=hd/";
     }
@@ -73,7 +111,7 @@ async function refreshCams(pos) {
     headers: myHeaders,
     redirect: "follow",
   };
-
+  
   await fetch(
     `https://api.windy.com/api/webcams/v2/${apiType}${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
     requestOptions
@@ -81,6 +119,7 @@ async function refreshCams(pos) {
     .then((response) => response.json())
     .then((result) => updateMarkers(result))
     .catch((error) => console.log("error", error));
+    
 }
 
 // clears markers from map and window text
@@ -101,18 +140,6 @@ function updateMarkers(result) {
   console.log(result);
   filteredCount = 0;
 
-  camimage = {
-    url: function () {
-      if (filters.checked == false) {
-        return "https://adeels.ca/assets/icons/cam.png";
-      } else if (live.checked == true) {
-        return "https://adeels.ca/assets/icons/cam.png";
-      }
-    },
-    origin: new google.maps.Point(0, 0),
-    anchor: new google.maps.Point(0, 0),
-  };
-
   // values for camera image, label box sizes
   let boxPaths = {
     1: "",
@@ -125,13 +152,19 @@ function updateMarkers(result) {
   // refreshing maps popup hide
   result.result.webcams.forEach((cam, index) => {
     filteredCount += cam.map.clustersize;
+    if (cam.player.live.available == true) {
+      watchText = `Watch <b><a class ="livelink" href=http://webcams.windy.com/webcams/stream/${cam.id}>LIVE</b> | <b><a href=${cam.player.day.embed}>Timelapse</a></b>`;
+    } else {
+      watchText = `Watch <b><a href=${cam.player.day.embed}>Timelapse</a></b>`;
+    }
+
     // generate an info window
     const infowindow = new google.maps.InfoWindow({
       fullText: `
           <div id="camtext">
             <h3>${cam.title}</h3>
             <a id="thumb" href="#"><img src=${cam.image.current.thumbnail} alt="thumbnail" /></a>
-            Watch <b><a href=http://webcams.windy.com/webcams/stream/${cam.id}>LIVE</b> | <b><a href=${cam.player.day.embed}>Timelapse</a></b>
+            ${watchText}
             <ul>
                 <li><b>Location:</b> <a href=${cam.location.wikipedia}>${cam.location.city}. ${cam.location.region}</a></li>
                 <li><b>Coordinates:</b> ${cam.location.latitude}. ${cam.location.longitude}</li>
@@ -182,34 +215,16 @@ function updateMarkers(result) {
         bubbles.push(bubble);
       }
 
-      //   } else if (cam.player.live.available == true) {
-      //     bubble = new google.maps.Marker({
-      //       map,
-      //       animation: google.maps.Animation.DROP,
-      //       position: { lat: cam.location.latitude, lng: cam.location.longitude },
-      //       label: {
-      //         text: "LIVE",
-      //         className: "bubbles",
-      //       },
-      //       icon: {
-      //         path: `${boxPaths[2]}`,
-      //         fillColor: "red",
-      //         strokeColor: "black",
-      //         strokeWeight: 1,
-      //         scale: 0.4,
-      //         strokeOpacity: 1,
-      //         fillOpacity: 0.7,
-      //         anchor: new google.maps.Point(0, 70),
-      //       },
-      //     });
-      //   }
-
       // drop the camera marker itself. click to open cam popup.
       const marker = new google.maps.Marker({
         map,
         animation: google.maps.Animation.DROP,
         position: { lat: cam.location.latitude, lng: cam.location.longitude },
-        icon: camimage,
+        icon: {
+          url: camImage,
+          origin: new google.maps.Point(0, 0),
+          anchor: new google.maps.Point(0, 0),
+        },
       });
       markers.push(marker);
 
@@ -235,10 +250,9 @@ function updateMarkers(result) {
 
       // on click, open bigtext
       marker.addListener("click", () => {
+        isOpen = marker;
         infowindow.setContent(infowindow.fullText);
       });
-
-      // on click, open zoom in one level, refresh cams.
 
       // on closeclick, close bigtext
       infowindow.addListener("closeclick", () => {
@@ -247,6 +261,12 @@ function updateMarkers(result) {
           map,
           shouldFocus: false,
         });
+        infowindow.setContent(infowindow.smallText);
+      });
+
+      //close info windows if clicking outside
+      map.addListener("click", () => {
+        infowindow.close();
         infowindow.setContent(infowindow.smallText);
       });
     }, 35 * index);
@@ -363,6 +383,15 @@ $(window).on("load", function () {
     });
 
     this.$inputs.on("change", function (e) {
+      // jquery code, don't need it anymore.
+      // if (_this.$el.find(":checked").length >= 1) {
+      //   _this.$inputs.prop("checked", false);
+      //   e.currentTarget.checked = !e.currentTarget.checked;
+      //   category.last = e.currentTarget;
+      // } else {
+      //   delete category.last;
+      // }
+      // console.log(category.last);
       _this.onCheckBox();
     });
   };
@@ -378,31 +407,31 @@ $(window).on("load", function () {
     this.$checkAll.html("Check All");
 
     if (checked.length <= 0) {
-      this.$label.html("Select Categories");
+      this.$label.html("All Categories Shown");
     } else if (checked.length === 1) {
-      this.$label.html(checked.parent("label").text());
-    } else if (checked.length === this.$inputs.length) {
-      this.$label.html("All Selected");
-      this.areAllChecked = true;
-      this.$checkAll.html("Uncheck All");
-    } else {
-      this.$label.html(checked.length + " Selected");
+      this.$label.html(`Only show: ${checked.parent("label").text()}`);
+      // } else if (checked.length === this.$inputs.length) {
+      //   this.$label.html("All Selected");
+      //   this.areAllChecked = true;
+      //   this.$checkAll.html("Uncheck All");
+      // } else {
+      //   this.$label.html(checked.length + " Selected");
     }
   };
 
-  CheckboxDropdown.prototype.onCheckAll = function (checkAll) {
-    if (!this.areAllChecked || checkAll) {
-      this.areAllChecked = true;
-      this.$checkAll.html("Uncheck All");
-      this.$inputs.prop("checked", true);
-    } else {
-      this.areAllChecked = false;
-      this.$checkAll.html("Check All");
-      this.$inputs.prop("checked", false);
-    }
+  //   CheckboxDropdown.prototype.onCheckAll = function (checkAll) {
+  //     if (!this.areAllChecked || checkAll) {
+  //       this.areAllChecked = true;
+  //       this.$checkAll.html("Uncheck All");
+  //       this.$inputs.prop("checked", true);
+  //     } else {
+  //       this.areAllChecked = false;
+  //       this.$checkAll.html("Check All");
+  //       this.$inputs.prop("checked", false);
+  //     }
 
-    this.updateStatus();
-  };
+  //     this.updateStatus();
+  //   };
 
   CheckboxDropdown.prototype.toggleOpen = function (forceOpen) {
     var _this = this;
