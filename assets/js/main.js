@@ -9,11 +9,16 @@
 // iframe for live / timelapse
 // refreshing cams popup...
 
+// variables
 let map, infoWindow, apiType, apiZoom, camImage;
 let resizing = false;
 let markers = [];
 let bubbles = [];
 
+let modal = document.getElementById("myModal");
+let camFrame = document.getElementById("camframe");
+let btn = document.getElementById("myBtn");
+let span = document.getElementsByClassName("close")[0];
 let filters = document.getElementById("filters");
 let category = document.getElementsByClassName("category");
 let live = document.getElementById("live");
@@ -23,6 +28,7 @@ let filtered = document.getElementById("filtered");
 let shown = document.getElementById("shown");
 let [nearby, property, catStr] = Array(3).fill("");
 
+// to avoid 'idle' api event calls when resizing, set flag until resizing complete
 window.addEventListener("resize", function () {
   resizing = true;
   clearTimeout(window.resizedFinished);
@@ -30,6 +36,33 @@ window.addEventListener("resize", function () {
     resizing = false;
   }, 250);
 });
+
+//modal popup
+btn.onclick = function () {
+  modal.style.display = "block";
+};
+
+// open modal if clicked on any live or timelapse link
+
+window.addEventListener("click", function (e) {
+  if (e.target.className == "watch") {
+    modal.style.display = "block";
+  }
+});
+
+//hide modal if clicked on X
+span.onclick = function () {
+  camFrame.setAttribute("src", "about:blank");
+  modal.style.display = "none";
+};
+
+//hide any open modal window if clicked outside of window
+window.onclick = function (event) {
+  if (event.target == modal) {
+    camFrame.setAttribute("src", "about:blank");
+    modal.style.display = "none";
+  }
+};
 
 document.querySelector(".options").addEventListener("click", function (e) {
   //handle filter toggle on/off
@@ -75,7 +108,9 @@ document.querySelector(".options").addEventListener("click", function (e) {
   }
 });
 
+//form API call string based on filters checked
 function filterCheck(zoom) {
+  //if no filters, use map call
   if (filters.checked == false) {
     apiType = "map/";
     apiZoom = `,${zoom}`;
@@ -83,7 +118,7 @@ function filterCheck(zoom) {
     catStr = "";
     camImage = "https://adeels.ca/assets/icons/cam.png";
 
-    // grey out all filters too
+    //otherwise use list/bbox call with filters
   } else {
     apiType = "list/bbox=";
     apiZoom = "";
@@ -97,6 +132,7 @@ function filterCheck(zoom) {
       catStr = `category=${catStr.slice(0, catStr.length - 1)}/`;
     }
 
+    //set property query parameter and map marker icons
     if (live.checked == true && hd.checked == true) {
       property = "property=live,hd/";
       camImage = "https://adeels.ca/assets/icons/livecam.png";
@@ -109,6 +145,7 @@ function filterCheck(zoom) {
   }
 }
 
+//call windy API and get list of cams to display based on filters
 async function refreshCams(pos) {
   let myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
@@ -120,13 +157,13 @@ async function refreshCams(pos) {
     redirect: "follow",
   };
 
-  //   await fetch(
-  //     `https://api.windy.com/api/webcams/v2/${apiType}${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
-  //     requestOptions
-  //   )
-  //     .then((response) => response.json())
-  //     .then((result) => updateMarkers(result))
-  //     .catch((error) => console.log("error", error));
+  await fetch(
+    `https://api.windy.com/api/webcams/v2/${apiType}${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
+    requestOptions
+  )
+    .then((response) => response.json())
+    .then((result) => updateMarkers(result))
+    .catch((error) => console.log("error", error));
 }
 
 // clears markers from map and window text
@@ -143,6 +180,7 @@ function clearMarkers() {
   bubbles = [];
 }
 
+//place new markers on the map and generate infowindows and text
 function updateMarkers(result) {
   console.log(result);
   filteredCount = 0;
@@ -157,12 +195,13 @@ function updateMarkers(result) {
 
   // for each camera returned
   // refreshing maps popup hide
+
   result.result.webcams.forEach((cam, index) => {
     filteredCount += cam.map.clustersize;
     if (cam.player.live.available == true) {
-      watchText = `Watch <b><a class ="livelink" href=http://webcams.windy.com/webcams/stream/${cam.id}>LIVE</b> | <b><a href=${cam.player.day.embed}>Timelapse</a></b>`;
+      watchText = `Watch <b><a class="watch" target="modalcam" href=http://webcams.windy.com/webcams/stream/${cam.id}>LIVE</b> | <b><a class="watch" target="modalcam" href=${cam.player.day.embed}>Timelapse</a></b>`;
     } else {
-      watchText = `Watch <b><a href=${cam.player.day.embed}>Timelapse</a></b>`;
+      watchText = `Watch <b><a class="watch" target="modalcam" href=${cam.player.day.embed}>Timelapse</a></b>`;
     }
 
     // generate an info window
@@ -173,7 +212,7 @@ function updateMarkers(result) {
             <a id="thumb" href="#"><img src=${cam.image.current.thumbnail} alt="thumbnail" /></a>
             ${watchText}
             <ul>
-                <li><b>Location:</b> <a href=${cam.location.wikipedia}>${cam.location.city}. ${cam.location.region}</a></li>
+                <li><b>Location:</b> <a target="_blank" href=${cam.location.wikipedia}>${cam.location.city}. ${cam.location.region}</a></li>
                 <li><b>Coordinates:</b> ${cam.location.latitude}. ${cam.location.longitude}</li>
                 <li><b>Views:</b> ${cam.statistics.views}</li>
             </ul>
@@ -259,6 +298,7 @@ function updateMarkers(result) {
       marker.addListener("click", () => {
         isOpen = marker;
         infowindow.setContent(infowindow.fullText);
+        //document.querySelector("#camtitle").innerText = infowindow.smallText;
       });
 
       // on closeclick, close bigtext
@@ -333,10 +373,11 @@ function initMap() {
             lng: position.coords.longitude,
           };
 
-          infoWindow.setPosition(pos);
-          infoWindow.setContent("Location found.");
-          infoWindow.open(map);
-          map.setCenter(pos);
+          //   infoWindow.setPosition(pos);
+          //   infoWindow.setContent("Location found.");
+          //   infoWindow.open(map);
+          // map.setCenter(pos);
+          map.panTo(pos);
         },
         () => {
           handleLocationError(true, infoWindow, map.getCenter());
@@ -359,16 +400,7 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
   infoWindow.open(map);
 }
 
-//pop up load function
-$(window).on("load", function () {
-  $(".show-player").magnificPopup({
-    type: "iframe",
-    midClick: true,
-    mainClass: "custom-popup-class",
-  });
-});
-
-// checkbox function
+// checkbox dropdown function
 (function ($) {
   var CheckboxDropdown = function (el) {
     var _this = this;
@@ -465,5 +497,7 @@ $(window).on("load", function () {
   }
 })(jQuery);
 
-// $('<iframe class=".mfp-iframe">').appendTo('head');
-// $('iframe').contents().find('head').html('<base target="_parent">');
+//don't iframe me bro
+if (top.location != self.location) {
+  top.location = self.location.href;
+}
