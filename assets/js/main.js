@@ -10,6 +10,7 @@
 // refreshing cams popup...
 
 let map, infoWindow, apiType, apiZoom, camImage;
+let resizing = false;
 let markers = [];
 let bubbles = [];
 
@@ -22,8 +23,16 @@ let filtered = document.getElementById("filtered");
 let shown = document.getElementById("shown");
 let [nearby, property, catStr] = Array(3).fill("");
 
+window.addEventListener("resize", function () {
+  resizing = true;
+  clearTimeout(window.resizedFinished);
+  window.resizedFinished = setTimeout(function () {
+    resizing = false;
+  }, 250);
+});
+
 document.querySelector(".options").addEventListener("click", function (e) {
-    //handle filter toggle on/off
+  //handle filter toggle on/off
   if (e.target.id == "filters") {
     if (filters.checked == false) {
       live.last = live.checked;
@@ -57,7 +66,7 @@ document.querySelector(".options").addEventListener("click", function (e) {
       }
     }
 
-  //handle filter toggle being set if anything else is selected or unselected
+    //handle filter toggle being set if anything else is selected or unselected
     if (live.checked == true || hd.checked == true || category.curr.checked == true) {
       filters.checked = true;
     } else if (live.checked == false && hd.checked == false && category.curr.checked == false) {
@@ -65,7 +74,6 @@ document.querySelector(".options").addEventListener("click", function (e) {
     }
   }
 });
-
 
 function filterCheck(zoom) {
   if (filters.checked == false) {
@@ -111,15 +119,14 @@ async function refreshCams(pos) {
     headers: myHeaders,
     redirect: "follow",
   };
-  
-  await fetch(
-    `https://api.windy.com/api/webcams/v2/${apiType}${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
-    requestOptions
-  )
-    .then((response) => response.json())
-    .then((result) => updateMarkers(result))
-    .catch((error) => console.log("error", error));
-    
+
+  //   await fetch(
+  //     `https://api.windy.com/api/webcams/v2/${apiType}${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
+  //     requestOptions
+  //   )
+  //     .then((response) => response.json())
+  //     .then((result) => updateMarkers(result))
+  //     .catch((error) => console.log("error", error));
 }
 
 // clears markers from map and window text
@@ -292,13 +299,15 @@ function initMap() {
 
   infoWindow = new google.maps.InfoWindow();
 
-  map.addListener("idle", () => {
+  refreshEvent = map.addListener("idle", () => {
     // refreshing maps popup
-    pos = map.getBounds();
-    mid = map.getCenter().toJSON();
-    clearMarkers();
-    filterCheck(map.zoom);
-    refreshCams(pos);
+    if (resizing == false) {
+      pos = map.getBounds();
+      mid = map.getCenter().toJSON();
+      clearMarkers();
+      filterCheck(map.zoom);
+      refreshCams(pos);
+    }
   });
 
   map.addListener("dragend", () => {
@@ -391,7 +400,6 @@ $(window).on("load", function () {
       // } else {
       //   delete category.last;
       // }
-      // console.log(category.last);
       _this.onCheckBox();
     });
   };
