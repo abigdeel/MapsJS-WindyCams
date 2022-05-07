@@ -1,13 +1,12 @@
 // Todo list
 ////////////////
-// Design site:
-// Disclaimer, guidance, etc.
-
-// JS stuff pending:
-// add history localStorage
+//Disclaimer, guidance, etc.
+// add history localStorag
+// fix the infowindow styling
+// fix refresh cams count map vs bbox
 // bbox vs viewport?
-// iframe for live / timelapse
 // refreshing cams popup...
+
 
 // variables
 let map, infoWindow, apiType, apiZoom, camImage;
@@ -15,9 +14,11 @@ let resizing = false;
 let markers = [];
 let bubbles = [];
 
-let modal = document.getElementById("myModal");
+let camModal = document.getElementById("camModal");
+let welcomeModal = document.getElementById("welcomeModal");
+let firstTime = document.getElementById("firsttime");
+let help = document.getElementById("helpbox");
 let camFrame = document.getElementById("camframe");
-let btn = document.getElementById("myBtn");
 let span = document.getElementsByClassName("close")[0];
 let filters = document.getElementById("filters");
 let category = document.getElementsByClassName("category");
@@ -28,39 +29,45 @@ let filtered = document.getElementById("filtered");
 let shown = document.getElementById("shown");
 let [nearby, property, catStr] = Array(3).fill("");
 
+//first time message box listener
+firstTime.addEventListener("change", () => localStorage.setItem("firstTime", firstTime.checked));
+help.addEventListener("click", () => (welcomeModal.style.display = "block"));
+
+//show welcome
+window.onload = function () {
+  if (localStorage.firstTime == "false") {
+    welcomeModal.style.display = "block";
+  }
+};
+
 // to avoid 'idle' api event calls when resizing, set flag until resizing complete
 window.addEventListener("resize", function () {
   resizing = true;
   clearTimeout(window.resizedFinished);
   window.resizedFinished = setTimeout(function () {
     resizing = false;
-  }, 250);
+  }, 500);
 });
-
-//modal popup
-btn.onclick = function () {
-  modal.style.display = "block";
-};
 
 // open modal if clicked on any live or timelapse link
 
 window.addEventListener("click", function (e) {
   if (e.target.className == "watch") {
-    modal.style.display = "block";
+    camModal.style.display = "block";
   }
 });
 
 //hide modal if clicked on X
-span.onclick = function () {
+span.onclick = function (e) {
   camFrame.setAttribute("src", "about:blank");
-  modal.style.display = "none";
+  e.target.closest(".modal").style.display = "none";
 };
 
 //hide any open modal window if clicked outside of window
-window.onclick = function (event) {
-  if (event.target == modal) {
+window.onclick = function (e) {
+  if (e.target.className == "modal") {
     camFrame.setAttribute("src", "about:blank");
-    modal.style.display = "none";
+    e.target.style.display = "none";
   }
 };
 
@@ -157,13 +164,13 @@ async function refreshCams(pos) {
     redirect: "follow",
   };
 
-  await fetch(
-    `https://api.windy.com/api/webcams/v2/${apiType}${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
-    requestOptions
-  )
-    .then((response) => response.json())
-    .then((result) => updateMarkers(result))
-    .catch((error) => console.log("error", error));
+  //   await fetch(
+  //     `https://api.windy.com/api/webcams/v2/${apiType}${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
+  //     requestOptions
+  //   )
+  //     .then((response) => response.json())
+  //     .then((result) => updateMarkers(result))
+  //     .catch((error) => console.log("error", error));
 }
 
 // clears markers from map and window text
@@ -319,9 +326,9 @@ function updateMarkers(result) {
     }, 35 * index);
   });
 
-  total.innerText = `Total webcams: 55,490`;
-  filtered.innerText = `Matching filters: ${filteredCount}`;
-  shown.innerText = `Shown on map: ${result.result.limit}`;
+  total.innerText = `55,490`;
+  filtered.innerText = `${filteredCount}`;
+  shown.innerText = `${result.result.limit}`;
 }
 
 function initMap() {

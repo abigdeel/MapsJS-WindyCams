@@ -11,18 +11,33 @@
   /* LAYOUT
   /*******************************************/
 body {
-  background-color: #e8eaed;
-  font-family: "Google-Sans", sans-serif;
+  background-color: #202124;
+  font-family: "Darker Grotesque", sans-serif;
+  color: #e8eaed;
+  line-height: 1.25em;
+  font-size: 1.5em;
 }
 
 #wrap {
-  padding: 30px 30px 0px 30px;
+  padding: 0px 20px 0px 20px;
   max-width: 1920px;
   margin: 0 auto;
 }
 
+p {
+  padding: 0px 30px;
+}
+
 h1 {
+  font-family: "Encode Sans SC", sans-serif;
   text-align: center;
+  font-size: 3em;
+  line-height: 1em;
+  margin: 0.5em;
+}
+
+h2 {
+  text-decoration: underline;
 }
 
 img {
@@ -30,23 +45,124 @@ img {
   max-height: 400px;
 }
 
-.options {
+.mapheader {
+  display: flex;
+  line-height: 1em;
+}
+
+/* Styling for options / stats section */
+.options,
+.stats {
+  background-color: #383b40;
+  border: black solid 3px;
+  border-radius: 20px;
   display: inline-flex;
-  width: 45%;
   flex-direction: row;
+  font-weight: bold;
+}
+.options {
+  width: 65%;
+  padding: 3px 20px 3px 6px;
   justify-content: flex-start;
-  gap: 20px;
+  border-bottom-left-radius: 0px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border-bottom: 0px;
+  border-right: 0px;
+  gap: 30px;
 }
 
 .stats {
-  display: inline-flex;
-  width: 45%;
-  flex-direction: row;
+  width: 35%;
+  padding: 3px 7px 3px 20px;
+  text-align: center;
   justify-content: flex-end;
+  border-bottom-left-radius: 0px;
+  border-top-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border-bottom: 0px;
+  border-left: 0px;
+  column-gap: 30px;
 }
 
-section {
-  user-select: none;
+@media only screen and (max-width: 1000px) {
+  .mapheader {
+    flex-wrap: wrap;
+  }
+  .options,
+  .stats {
+    justify-content: center;
+    width: 100%;
+    display: flex;
+    padding: 5px 0px;
+  }
+
+  .options {
+    border-right: 3px solid black;
+    border-top-right-radius: 20px;
+    border-bottom: none;
+  }
+  .stats {
+    border-left: 3px solid black;
+    border-top-right-radius: 0px;
+    border-top: 1px solid #7a818c;
+    position: relative;
+  }
+  #helpbox {
+    position: absolute;
+    right: 0;
+    height: 50px;
+    margin-right: 5px;
+    
+  }
+}
+
+#total,
+#filtered,
+#shown {
+  display: block;
+}
+
+/* map header contents styling */
+.filters.all {
+  border-radius: 10%;
+  padding: 0 0 7px 20px;
+  background-color: #202225;
+}
+.filters.all label {
+  left: 14px;
+}
+.filters.live label {
+  right: 4px;
+}
+.filters.hd label {
+  right: 9px;
+}
+
+/* help box styling */
+#helpbox {
+  min-width: 50px;
+  cursor: pointer;
+  border-radius: 10%;
+  font-size: 1.25em;
+  transition: all 0.25s;
+  background-color: #202225;
+  color: #e8eaed;
+}
+
+#helpbox:hover {
+  transition: all 0.25s;
+  font-size: 2em;
+  border-radius: 22%;
+  background-color: #848a96;
+  color: #ffff8d;
+}
+
+#help {
+  padding: 0;
+  margin: 0;
+  position: relative;
+  top: 9px;
 }
 
 /* 
@@ -54,24 +170,17 @@ section {
  * that contains the map. 
  */
 #map {
-  border: black solid 6px;
+  color: black;
+  border: black solid 3px;
   border-radius: 20px;
-  height: 85%;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+  height: 65%;
   width: 100%;
 }
 
 iframe {
   border: none;
-}
-
-/* 
- * Optional: Makes the sample page fill the window. 
- */
-html,
-body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
 }
 
 #camtext {
@@ -119,24 +228,25 @@ body {
 /* styling for dropdown box */
 
 .dropdown {
-  flex-grow: 2;
+  width: 40%;
   z-index: 5;
   position: relative;
-  font-size: 14px;
-  color: #333;
+  bottom: 1px;
+  font-size: 0.75em;
 }
 .dropdown .dropdown-list {
+  color: #333;
   padding: 12px;
   background: #fff;
   position: absolute;
-  top: 46px;
+  top: 59px;
   left: 2px;
   right: 2px;
   box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.15);
   transform-origin: 50% 0;
   transform: scale(1, 0);
   transition: transform 0.15s ease-in-out 0.15s;
-  max-height: 66vh;
+  max-height: 50vh;
   overflow-y: scroll;
 }
 .dropdown .dropdown-option {
@@ -147,10 +257,13 @@ body {
 }
 .dropdown .dropdown-label {
   display: block;
-  height: 30px;
+  height: 27px;
   background: #fff;
+  color: #333;
+
   border: 1px solid #ccc;
-  padding: 6px 12px;
+  border-radius: 3px;
+  padding: 3px 12px;
   line-height: 1;
   cursor: pointer;
 }
@@ -183,10 +296,11 @@ body {
 }
 
 .filters label {
+  margin-top: 3px;
   cursor: pointer;
   text-indent: -9999px;
   width: 50px;
-  height: 25px;
+  height: 20px;
   background: grey;
   display: block;
   border-radius: 100px;
@@ -196,17 +310,17 @@ body {
 .filters label:after {
   content: "";
   position: absolute;
-  top: 3px;
+  top: 2px;
   left: 3px;
   width: 20px;
-  height: 20px;
+  height: 16px;
   background: #fff;
   border-radius: 90px;
   transition: 0.3s;
 }
 
 .filters input:checked + label {
-  background: #bada55;
+  background: #5cb85c;
 }
 
 .filters input:checked + label:after {
@@ -222,29 +336,25 @@ body {
   /* ADDITIONAL STYLES
   /*******************************************/
 
-#myBtn {
-  display: block;
-}
-
 /* The Modal (background) */
 .modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 10; /* Sit on top */
-  padding-top: 100px; /* Location of the box */
+  display: none;
+  position: fixed;
+  z-index: 10;
+  padding-top: 100px;
   left: 0;
   top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0, 0, 0); /* Fallback color */
-  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(32, 33, 36);
+  background-color: rgba(32, 33, 36, 0.9);
 }
 
 /* Modal Content */
 .modal-content {
   position: relative;
-  background-color: #fefefe;
+  background-color: rgba(32, 33, 36, 0.4);
   margin: auto;
   padding: 0;
   border: 1px solid #888;
@@ -254,6 +364,25 @@ body {
   -webkit-animation-duration: 0.4s;
   animation-name: animatetop;
   animation-duration: 0.4s;
+}
+
+#welcomeModal .modal-body {
+  padding: 30px 30px 40px 30px;
+}
+
+#firsttime {
+  margin: 30px 0px 0px 20px;
+}
+
+.modal-body [type="checkbox"] {
+  position: relative;
+  bottom: 2px;
+  width: 15px;
+  height: 15px;
+}
+
+#onlyonce {
+  font-size: 1.25em;
 }
 
 /* Add Animation */
@@ -282,8 +411,10 @@ body {
 /* The Close Button */
 .close {
   color: white;
+  position: relative;
   float: right;
-  font-size: 28px;
+  top: 12px;
+  font-size: 38px;
   font-weight: bold;
 }
 
@@ -295,6 +426,7 @@ body {
 }
 
 .modal-header {
+  text-align: center;
   padding: 2px 16px;
   background-color: #5cb85c;
   color: white;

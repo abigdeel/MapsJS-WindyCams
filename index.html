@@ -1,68 +1,88 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      type="text/css"
+      href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500&family=Encode+Sans+SC&family=Roboto&display=swap"
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Google+Sans:400,500,700"
     />
-    <!-- <link rel="stylesheet" href="assets/css/popup.css" /> -->
+
     <link rel="stylesheet" href="assets/css/style.css" />
     <!-- <link rel="stylesheet" href="css/autocomplete.min.css" /> -->
-    <title>Webcams of the World</title>
-    <link rel="icon" href="https://embedgooglemaps.org/favicon.png" sizes="32x32" />
-    <link rel="icon" href="https://embedgooglemaps.org/favicon.png" sizes="192x192" />
-    <link rel="apple-touch-icon-precomposed" href="https://embedgooglemaps.org/favicon.png" />
-    <meta name="msapplication-TileImage" content="https://embedgooglemaps.org/favicon.png" />
+    <title>World of Webcams</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <link rel="manifest" href="site.webmanifest" />
   </head>
 
   <body>
     <div id="wrap">
       <header>
         <nav></nav>
-        <h1>Webcams of the World</h1>
+        <h1>World of Webcams</h1>
       </header>
 
       <section class="welcome">
-        <h2>Welcome</h2>
-        <p>This site combines Google Maps and Windy's truly massive repository of webcams! (65,000+)</p>
-        <p>Many of the webcams are 24 hour+ timelapses, but there are thousands of live cameras too.</p>
+        <p>
+          This site combines Google Maps and Windy's truly massive repository of webcams! (55,000+)<br />
+          Many of the webcams are 24 hour+ timelapses, but there are thousands of live cameras too. Have fun!
+        </p>
       </section>
 
-      <section class="instructions">
-        <h2>How to Use</h2>
-        <ul>
-          <li>Pan to an area of the map or select "Find Me" to geolocate your position</li>
-          <li>The map will show cameras in the area and group nearby cameras</li>
-          <li>Zoom in further to see individual cams and click on the marker</li>
-        </ul>
-
-        <h2>Notes</h2>
-        <ul>
-          <li>When no filters are active, map markers will cluster into groups</li>
-          <li>
-            If <b>any</b> filters are active, webcam clustering is disabled and only 50 markers can be shown (Windy API
-            limitation)
-          </li>
-          <li>
-            You can see above the map if any camera markers are being hidden. To see them, zoom in further or filter by
-            categories.
-          </li>
-
-          <br />
-          <li>To see grouped map markers again, toggle filters off</li>
-        </ul>
-      </section>
-
-      <!-- <button id="myBtn">Open Modal</button> -->
-
-      <!-- The Modal -->
-      <div id="myModal" class="modal">
+      <!-- Welcome Modal -->
+      <div id="welcomeModal" class="modal">
         <!-- Modal content -->
         <div class="modal-content">
           <div id="camtitle" class="modal-header">
             <span class="close">&times;</span>
-            <h2>Modal Header</h2>
+            <h2>WELCOME</h2>
+          </div>
+          <div class="modal-body">
+            <section class="instructions">
+              <h2>How to Use</h2>
+              <ul>
+                <li>Pan to an area of the map or select "Find Me" to geolocate your position</li>
+                <li>The map will show cameras in the area and group nearby cameras</li>
+                <li>Zoom in further to see individual cams and click on the marker</li>
+              </ul>
+
+              <h2>Notes</h2>
+              <ul>
+                <li>When no filters are active, map markers will cluster into groups</li>
+                <li>
+                  If <b>any</b> filters are active, webcam clustering is disabled and only 50 markers can be shown
+                  (Windy API limitation)
+                </li>
+                <li>
+                  You can see above the map if any camera markers are being hidden. To see them, zoom in further or
+                  filter by categories.
+                </li>
+
+                <br />
+                <li>To see grouped map markers again, toggle filters off</li>
+              </ul>
+
+              <input type="checkbox" id="firsttime" name="firsttime" />
+              <label id="onlyonce" for="firsttime">Don't show this again (click ? to see this again)</label>
+            </section>
+          </div>
+
+          <!-- <div class="modal-footer">
+            <h3>Modal Footer</h3>
+          </div> -->
+        </div>
+      </div>
+
+      <!-- The Modal -->
+      <div id="camModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+          <div id="camtitle" class="modal-header">
+            <span class="close">&times;</span>
+            <h2>Viewer</h2>
           </div>
           <div class="modal-body">
             <iframe
@@ -82,14 +102,15 @@
         </div>
       </div>
 
+      <div class="mapheader">
       <section class="options">
-        <div class="filters HD">
-          Enable Filters
+        <div class="filters all">
+          FILTERS
           <input type="checkbox" id="filters" name="filters" />
           <label for="filters">filters</label>
         </div>
         <div class="dropdown" data-control="checkbox-dropdown">
-          <span>Categories:</span>
+          <span>Categories</span>
           <label class="dropdown-label">Select</label>
 
           <div class="dropdown-list">
@@ -206,7 +227,7 @@
         </div>
 
         <div class="filters live">
-          <span>LIVE</span>
+          <span>Live</span>
           <input type="checkbox" id="live" name="live" />
           <label for="live">Live</label>
         </div>
@@ -220,17 +241,21 @@
       <section class="stats">
         <div>
           <span>Total</span>
-          <span id="total"></span>
+          <span id="total">123-</span>
         </div>
         <div>
           <span>Results</span>
-          <span id="filtered"></span>
+          <span id="filtered">123-</span>
         </div>
         <div>
           <span>Shown</span>
-          <span id="shown"></span>
+          <span id="shown">123-</span>
+        </div>
+        <div id="helpbox">
+          <span id="help">?</span>
         </div>
       </section>
+      </div>
 
       <div id="map"></div>
       <span>Note: You may see some ads on webcams from Windy.</span>
