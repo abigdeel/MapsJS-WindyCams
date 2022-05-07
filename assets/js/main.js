@@ -1,12 +1,12 @@
-// Todo list
-////////////////
+//Styling
 //Disclaimer, guidance, etc.
-// add history localStorag
-// fix the infowindow styling
-// fix refresh cams count map vs bbox
-// bbox vs viewport?
+//info window cleanup
 // refreshing cams popup...
 
+//JS
+// bbox vs viewport?
+// smalltext add thumbnail
+//bbox handling when zoomed out, map edges.
 
 // variables
 let map, infoWindow, apiType, apiZoom, camImage;
@@ -14,12 +14,14 @@ let resizing = false;
 let markers = [];
 let bubbles = [];
 
+let camFrame = document.getElementById("camframe");
 let camModal = document.getElementById("camModal");
 let welcomeModal = document.getElementById("welcomeModal");
+let span = document.getElementsByClassName("close")[0];
+
 let firstTime = document.getElementById("firsttime");
 let help = document.getElementById("helpbox");
-let camFrame = document.getElementById("camframe");
-let span = document.getElementsByClassName("close")[0];
+
 let filters = document.getElementById("filters");
 let category = document.getElementsByClassName("category");
 let live = document.getElementById("live");
@@ -27,17 +29,54 @@ let hd = document.getElementById("hd");
 let total = document.getElementById("total");
 let filtered = document.getElementById("filtered");
 let shown = document.getElementById("shown");
+
 let [nearby, property, catStr] = Array(3).fill("");
+
+//restore the last selected options.
+function restoreOptions() {
+  if (localStorage.firstTime == "false") {
+    welcomeModal.style.display = "block";
+  }
+  if (localStorage.live) {
+    live.checked = JSON.parse(localStorage.live);
+  }
+  if (localStorage.hd) {
+    hd.checked = JSON.parse(localStorage.hd);
+  }
+  if (localStorage.filters) {
+    filters.checked = JSON.parse(localStorage.filters);
+  }
+  if (localStorage.catName) {
+    category.curr = document.querySelector(`input[value=${localStorage.catName}]`);
+    category.curr.checked = JSON.parse(localStorage.catValue);
+    if (category.curr.checked == true) {
+      document.querySelector(`label[class='dropdown-label']`).text = `Only show: ${category.curr.value}`;
+      filters.checked = true;
+    }
+  }
+}
 
 //first time message box listener
 firstTime.addEventListener("change", () => localStorage.setItem("firstTime", firstTime.checked));
 help.addEventListener("click", () => (welcomeModal.style.display = "block"));
 
-//show welcome
+//show welcome and get total webcam count
 window.onload = function () {
-  if (localStorage.firstTime == "false") {
-    welcomeModal.style.display = "block";
-  }
+  restoreOptions();
+  let myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+  myHeaders.append("x-windy-key", "O1gjC9qelwQKifrT2vlmlmPK7A5F3MhJ");
+
+  let requestOptions = {
+    method: "GET",
+    headers: myHeaders,
+    redirect: "follow",
+  };
+
+  fetch(`https://api.windy.com/api/webcams/v2/list/`, requestOptions)
+    .then((response) => response.json())
+    .then((result) => (total.innerText = result.result.total))
+    .catch((error) => console.log("error", error));
 };
 
 // to avoid 'idle' api event calls when resizing, set flag until resizing complete
@@ -50,10 +89,10 @@ window.addEventListener("resize", function () {
 });
 
 // open modal if clicked on any live or timelapse link
-
 window.addEventListener("click", function (e) {
-  if (e.target.className == "watch") {
+  if (e.target.className == "popuplink") {
     camModal.style.display = "block";
+
   }
 });
 
@@ -95,6 +134,10 @@ document.querySelector(".options").addEventListener("click", function (e) {
   //only allow one checked box, store last checked box.
   if (e.target.id == "live" || e.target.id == "hd" || e.target.className == "category") {
     if (e.target.className == "category") {
+      //save the last checked category and its value. either deselecting, or about to unselect the last.
+      localStorage.setItem(`catName`, e.target.value);
+      localStorage.setItem(`catValue`, e.target.checked);
+
       if (document.querySelectorAll("[class='category']:checked").length >= 1) {
         category.curr = e.target;
         document.querySelectorAll("[class='category']:checked").forEach((box) => {
@@ -103,7 +146,10 @@ document.querySelector(".options").addEventListener("click", function (e) {
           }
         });
       } else {
+        localStorage.setItem("category", "false");
       }
+    } else if (e.target.id == "live" || e.target.id == "hd") {
+      localStorage.setItem(`${e.target.id}`, e.target.checked);
     }
 
     //handle filter toggle being set if anything else is selected or unselected
@@ -112,6 +158,7 @@ document.querySelector(".options").addEventListener("click", function (e) {
     } else if (live.checked == false && hd.checked == false && category.curr.checked == false) {
       filters.checked = false;
     }
+    localStorage.setItem("filters", filters.checked);
   }
 });
 
@@ -164,13 +211,13 @@ async function refreshCams(pos) {
     redirect: "follow",
   };
 
-  //   await fetch(
-  //     `https://api.windy.com/api/webcams/v2/${apiType}${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
-  //     requestOptions
-  //   )
-  //     .then((response) => response.json())
-  //     .then((result) => updateMarkers(result))
-  //     .catch((error) => console.log("error", error));
+  await fetch(
+    `https://api.windy.com/api/webcams/v2/${apiType}${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
+    requestOptions
+  )
+    .then((response) => response.json())
+    .then((result) => updateMarkers(result))
+    .catch((error) => console.log("error", error));
 }
 
 // clears markers from map and window text
@@ -204,11 +251,13 @@ function updateMarkers(result) {
   // refreshing maps popup hide
 
   result.result.webcams.forEach((cam, index) => {
-    filteredCount += cam.map.clustersize;
+    if (filters.checked == false) {
+      filteredCount += cam.map.clustersize;
+    }
     if (cam.player.live.available == true) {
-      watchText = `Watch <b><a class="watch" target="modalcam" href=http://webcams.windy.com/webcams/stream/${cam.id}>LIVE</b> | <b><a class="watch" target="modalcam" href=${cam.player.day.embed}>Timelapse</a></b>`;
+      watchText = `<div id="linkcontainer"><span class="watch"><b><a class="popuplink" target="modalcam" href=http://webcams.windy.com/webcams/stream/${cam.id}>LIVE</a></b> | <b><a class="popuplink" target="modalcam" href=${cam.player.day.embed}>Timelapse</a></b></span></div>`;
     } else {
-      watchText = `Watch <b><a class="watch" target="modalcam" href=${cam.player.day.embed}>Timelapse</a></b>`;
+      watchText = `<div id="linkcontainer"><span class="watch"><a class="popuplink" target="modalcam" href=${cam.player.day.embed}>Timelapse</a></b></span></div>`;
     }
 
     // generate an info window
@@ -227,8 +276,12 @@ function updateMarkers(result) {
 
             </div>
             `,
-      smallText: cam.title,
-      content: cam.title,
+    //   smallText: `<div id="camtext"><a id="thumb" href="#"><img src=${cam.image.current.thumbnail} alt="thumbnail" /></a></div">
+    //   <h4>${cam.title}</h4>`,
+    //   content: `<div id="camtext"><a id="thumb" href="#"><img src=${cam.image.current.thumbnail} alt="thumbnail" /></a></div">
+    //   <h4>${cam.title}</h4>`,
+    smallText: cam.title,
+    content: cam.title,
       naxWidth: 400,
 
       disableAutoPan: true,
@@ -326,9 +379,19 @@ function updateMarkers(result) {
     }, 35 * index);
   });
 
-  total.innerText = `55,490`;
-  filtered.innerText = `${filteredCount}`;
-  shown.innerText = `${result.result.limit}`;
+  if (filters.checked == false) {
+    filtered.innerText = `${filteredCount}`;
+    shown.innerText = `${result.result.total}*`;
+  } else {
+    filtered.innerText = `${result.result.total}`;
+    shown.innerText = `${result.result.limit}`;
+  }
+
+  if (result.result.total > result.result.limit) {
+    shown.style.color = "#ff5a1b";
+  } else {
+    shown.style.color = "#f4ff6f";
+  }
 }
 
 function initMap() {

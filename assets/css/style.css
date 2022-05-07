@@ -31,7 +31,7 @@ p {
 h1 {
   font-family: "Encode Sans SC", sans-serif;
   text-align: center;
-  font-size: 3em;
+  font-size: 2.75em;
   line-height: 1em;
   margin: 0.5em;
 }
@@ -86,6 +86,13 @@ img {
 }
 
 @media only screen and (max-width: 1000px) {
+  body {
+    margin: 0;
+  }
+  #wrap {
+    padding: 0;
+  }
+
   .mapheader {
     flex-wrap: wrap;
   }
@@ -113,7 +120,6 @@ img {
     right: 0;
     height: 50px;
     margin-right: 5px;
-    
   }
 }
 
@@ -121,6 +127,7 @@ img {
 #filtered,
 #shown {
   display: block;
+  color: #f4ff6f;
 }
 
 /* map header contents styling */
@@ -169,13 +176,44 @@ img {
  * Always set the map height explicitly to define the size of the div element
  * that contains the map. 
  */
+
+.linkcontainer {
+}
+
+.watch {
+  font-size: 1.5em;
+  display: block;
+  text-align: center;
+  margin: 0 auto;
+  padding: 6px 12px;
+  margin-top: 5px;
+  width: fit-content;
+  background-color: #d9d9d9;
+  border-radius: 5px;
+  transition: all 0.25s;
+}
+
+.watch a {
+  color: blue;
+  font-weight: normal;
+  font-size: 1em;
+  transition: all 0.25s;
+
+}
+.watch a:hover {
+  color: darkgreen;
+  font-weight: bold;
+  font-size: 1.15em;
+  transition: all 0.25s;
+}
+
 #map {
   color: black;
   border: black solid 3px;
   border-radius: 20px;
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
-  height: 65%;
+  height: 68%;
   width: 100%;
 }
 
@@ -196,6 +234,13 @@ iframe {
   display: block;
   width: fit-content;
   margin: 0 auto;
+}
+
+h4 {
+  text-align: center;
+  margin: 4px 0px;
+  font-size: 1.1em;
+  font-weight: normal;
 }
 
 .bubbles {
@@ -332,6 +377,12 @@ iframe {
   width: 30px;
 }
 
+#disclaimer {
+  display: flex;
+  font-size: 0.75em;
+  justify-content: space-between;
+}
+
 /******************************************
   /* ADDITIONAL STYLES
   /*******************************************/
@@ -440,4 +491,11 @@ iframe {
   padding: 2px 16px;
   background-color: #5cb85c;
   color: white;
+}
+
+#cc {
+  display: block;
+  text-align: end;
+  line-height: 3.0em;
+  font-size: 0.9em;
 }
