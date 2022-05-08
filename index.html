@@ -5,7 +5,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500&family=Encode+Sans+SC&family=Roboto&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500&family=Encode+Sans+SC&family=Roboto&family=Roboto+Condensed&display=swap"
       rel="stylesheet"
     />
 
@@ -46,19 +46,27 @@
               <ul>
                 <li>Pan to an area of the map or select "Find Me" to geolocate your position</li>
                 <li>The map will show cameras in the area and group nearby cameras</li>
-                <li>Zoom in further to see individual cams and click on the marker</li>
+                <li>Panning or zooming refreshes the map and populates camera markers.</li>
+                <li>
+                  Tap the camera icon to see more info and webcam links. Tap the number above the marker to zoom in
+                  further
+                </li>
+                <li>Click anywhere on the map to close any open camera info windows</li>
               </ul>
 
               <h2>Notes</h2>
               <ul>
-                <li>When no filters are active, map markers will cluster into groups</li>
                 <li>
-                  If <b>any</b> filters are active, webcam clustering is disabled and only 50 markers can be shown
-                  (Windy API limitation)
+                  When <b>no</b> filters are active, map markers will cluster into groups. Tapping the camera marker
+                  will show only one camera, click the number above the marker or zoom in manually to see the rest.
                 </li>
                 <li>
-                  You can see above the map if any camera markers are being hidden. To see them, zoom in further or
-                  filter by categories.
+                  If <b>any</b> filters are active, webcam clustering is disabled and only 50 markers can be shown
+                  (Windy limitation)
+                </li>
+                <li>
+                  You can see above the map how many markers are currently shown and if any are hidden. To see them,
+                  zoom in further or filter by categories.
                 </li>
 
                 <br />
@@ -66,7 +74,7 @@
               </ul>
 
               <input type="checkbox" id="firsttime" name="firsttime" />
-              <label id="onlyonce" for="firsttime">Don't show this again (click ? to see this again)</label>
+              <label id="onlyonce" for="firsttime">Don't show this again (click ? to bring this up)</label>
             </section>
           </div>
 

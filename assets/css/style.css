@@ -245,13 +245,11 @@ h4 {
 
 .bubbles {
   position: relative;
+  font-size: 1.1em !important;
   left: 15px;
   top: 11px;
   color: white !important;
-  /* 
-  color: rgb(0, 0, 0);
-  font-size: 14px;
-  font-family: Roboto, Arial, sans-serif; */
+  font-family: "Roboto Condensed", Arial, sans-serif !important;
 }
 
 .custom-map-control-button {
