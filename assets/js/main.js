@@ -213,13 +213,13 @@ async function refreshCams(pos) {
     redirect: "follow",
   };
 
-  // await fetch(
-  //   `https://api.windy.com/api/webcams/v2/${apiType}${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
-  //   requestOptions
-  // )
-  //   .then((response) => response.json())
-  //   .then((result) => updateMarkers(result))
-  //   .catch((error) => console.log("error", error));
+  await fetch(
+    `https://api.windy.com/api/webcams/v2/${apiType}${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
+    requestOptions
+  )
+    .then((response) => response.json())
+    .then((result) => updateMarkers(result))
+    .catch((error) => console.log("error", error));
 }
 
 // clears markers from map and window text

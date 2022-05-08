@@ -320,7 +320,7 @@ h4 {
   cursor: pointer;
 }
 .dropdown .dropdown-label:before {
-  content: "▼";
+  content: ' \25BC';
   float: right;
 }
 .dropdown.on .dropdown-list {
@@ -332,7 +332,7 @@ h4 {
   transition-delay: 0.2s;
 }
 .dropdown.on .dropdown-label:before {
-  content: "▲";
+  content: ' \25B2';
 }
 .dropdown [type="checkbox"] {
   position: relative;
