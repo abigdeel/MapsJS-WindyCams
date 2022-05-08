@@ -8,7 +8,7 @@
 
 // variables
 let map, infoWindow, apiType, apiZoom, camImage;
-let resizing = false;
+let [resizing, restored] = [false, false];
 let markers = [];
 let bubbles = [];
 
@@ -52,6 +52,7 @@ function restoreOptions() {
       filters.checked = true;
     }
   }
+  restored = true;
 }
 
 //first time message box listener
@@ -60,7 +61,6 @@ help.addEventListener("click", () => (welcomeModal.style.display = "block"));
 
 //show welcome and get total webcam count
 window.onload = function () {
-  restoreOptions();
   let myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
   myHeaders.append("x-windy-key", "O1gjC9qelwQKifrT2vlmlmPK7A5F3MhJ");
@@ -213,13 +213,13 @@ async function refreshCams(pos) {
     redirect: "follow",
   };
 
-  await fetch(
-    `https://api.windy.com/api/webcams/v2/${apiType}${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
-    requestOptions
-  )
-    .then((response) => response.json())
-    .then((result) => updateMarkers(result))
-    .catch((error) => console.log("error", error));
+  // await fetch(
+  //   `https://api.windy.com/api/webcams/v2/${apiType}${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
+  //   requestOptions
+  // )
+  //   .then((response) => response.json())
+  //   .then((result) => updateMarkers(result))
+  //   .catch((error) => console.log("error", error));
 }
 
 // clears markers from map and window text
@@ -249,7 +249,7 @@ function updateMarkers(result) {
       filteredCount += cam.map.clustersize;
     }
     if (cam.player.live.available == true) {
-      watchText = `<div id="linkcontainer"><span class="watch"><b><a class="popuplink" target="modalcam" href=http://webcams.windy.com/webcams/stream/${cam.id}>LIVE</a></b> | <b><a class="popuplink" target="modalcam" href=${cam.player.day.embed}>Timelapse</a></b></span></div>`;
+      watchText = `<div id="linkcontainer"><span class="watch"><b><a class="popuplink" target="modalcam" href=https://webcams.windy.com/webcams/stream/${cam.id}>LIVE</a></b> | <b><a class="popuplink" target="modalcam" href=${cam.player.day.embed}>Timelapse</a></b></span></div>`;
     } else {
       watchText = `<div id="linkcontainer"><span class="watch"><a class="popuplink" target="modalcam" href=${cam.player.day.embed}>Timelapse</a></b></span></div>`;
     }
@@ -416,6 +416,7 @@ function initMap() {
     if (resizing == false) {
       pos = map.getBounds();
       mid = map.getCenter().toJSON();
+      restored == true || restoreOptions();
       clearMarkers();
       filterCheck(map.zoom);
       refreshCams(pos);
@@ -519,7 +520,7 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
     this.$checkAll.html("Check All");
 
     if (checked.length <= 0) {
-      this.$label.html("All Categories Shown");
+      this.$label.html("Show All");
     } else if (checked.length === 1) {
       this.$label.html(`Only show: ${checked.parent("label").text()}`);
       // } else if (checked.length === this.$inputs.length) {

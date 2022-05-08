@@ -506,3 +506,63 @@ h4 {
   line-height: 3em;
   font-size: 0.9em;
 }
+
+/* mobile tweaks */
+
+@media only screen and (max-width: 1000px) {
+  body {
+    font-size: 1.1em;
+  }
+
+  h1 {
+    margin: 25px;
+    font-size: 1.6em;
+  }
+  p {
+    font-size: 0.9em;
+    line-height: 1.2em;
+  }
+
+  #disclaimer {
+    line-height: 0.9em;
+    font-size: 0.8em;
+    margin: 0px 10px;
+    gap: 60px;
+  }
+
+  #cc {
+    font-size: 0.7em;
+    text-align: center;
+  }
+
+  #welcomeModal .modal-content {
+    width: 85%;
+  }
+
+  #welcomeModal .modal-body {
+    padding: 20px 15px 20px 15px;
+  }
+
+  .filters.all {
+    border-radius: 10%;
+    margin-left: 5px;
+    padding: 0 0 7px 15px;
+    background-color: #202225;
+  }
+  .filters.all label {
+    left: 5px;
+    bottom: 8px;
+  }
+
+  #helpbox {
+    height: 38px;
+  }
+
+  .options {
+    height: 60px;
+  }
+
+  .options label {
+    bottom: 2px;
+  }
+}
