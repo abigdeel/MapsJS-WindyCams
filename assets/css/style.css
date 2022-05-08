@@ -26,6 +26,7 @@ body {
 
 p {
   padding: 0px 30px;
+  margin: 10px 0;
 }
 
 h1 {
@@ -131,6 +132,15 @@ img {
 }
 
 /* map header contents styling */
+#version {
+  color: grey;
+  font-size: 0.6em;
+  padding: 0 16px 0 0;
+  margin: 0;
+  display: block;
+  text-align: end;
+}
+
 .filters.all {
   border-radius: 10%;
   padding: 0 0 7px 20px;
@@ -198,7 +208,6 @@ img {
   font-weight: normal;
   font-size: 1em;
   transition: all 0.25s;
-
 }
 .watch a:hover {
   color: darkgreen;
@@ -213,7 +222,7 @@ img {
   border-radius: 20px;
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
-  height: 68%;
+  height: 69%;
   width: 100%;
 }
 
@@ -494,6 +503,6 @@ h4 {
 #cc {
   display: block;
   text-align: end;
-  line-height: 3.0em;
+  line-height: 3em;
   font-size: 0.9em;
 }
