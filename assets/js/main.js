@@ -1,11 +1,9 @@
 //Styling
-//Disclaimer, guidance, etc.
-//info window cleanup
 // refreshing cams popup...
+// update webcam popup viewer header
 
 //JS
 // bbox vs viewport?
-// smalltext add thumbnail
 //bbox handling when zoomed out, map edges.
 
 // variables
@@ -92,7 +90,6 @@ window.addEventListener("resize", function () {
 window.addEventListener("click", function (e) {
   if (e.target.className == "popuplink") {
     camModal.style.display = "block";
-
   }
 });
 
@@ -127,6 +124,10 @@ document.querySelector(".options").addEventListener("click", function (e) {
       hd.checked = hd.last;
       if (category.curr) {
         category.curr.checked == category.last || category.curr.click();
+      }
+      if (!localStorage.category && !localStorage.live && !localStorage.hd) {
+        live.checked = true;
+        localStorage.live = live.checked;
       }
     }
   }
@@ -170,7 +171,8 @@ function filterCheck(zoom) {
     apiZoom = `,${zoom}`;
     property = "";
     catStr = "";
-    camImage = "https://adeels.ca/assets/icons/cam.png";
+    camImage = "assets/icons/cam1.svg";
+    camLabel = "assets/icons/label4";
 
     //otherwise use list/bbox call with filters
   } else {
@@ -189,10 +191,10 @@ function filterCheck(zoom) {
     //set property query parameter and map marker icons
     if (live.checked == true && hd.checked == true) {
       property = "property=live,hd/";
-      camImage = "https://adeels.ca/assets/icons/livecam.png";
+      camImage = "assets/icons/live2.svg";
     } else if (live.checked == true && hd.checked == false) {
       property = "property=live/";
-      camImage = "https://adeels.ca/assets/icons/livecam.png";
+      camImage = "assets/icons/live2.svg";
     } else if (live.checked == false && hd.checked == true) {
       property = "property=hd/";
     }
@@ -239,14 +241,6 @@ function updateMarkers(result) {
   console.log(result);
   filteredCount = 0;
 
-  // values for camera image, label box sizes
-  let boxPaths = {
-    1: "",
-    2: "M 37.667,75.318 28.253,59.015 C 23.363382,58.880446 18.431789,59.337587 13.578168,58.669012 5.3675157,57.160976 -0.6687999,48.987657 0,40.724081 0.05498383,32.243353 -0.11230207,23.755185 0.08793213,15.279294 0.77863651,6.4338464 9.2734285,-0.66304946 18.075766,0.015 31.929808,0.04770532 45.787087,-0.05067707 59.639091,0.06466363 68.657304,0.5292434 76.032904,9.1335521 75.333,18.090766 75.27796,26.64321 75.445374,35.203099 75.24507,43.750706 74.554365,52.596154 66.059573,59.693049 57.257236,59.015 H 47.078002 l -9.411,16.303 z",
-    3: "",
-    4: "",
-  };
-
   // for each camera returned
   // refreshing maps popup hide
 
@@ -268,21 +262,25 @@ function updateMarkers(result) {
             <a id="thumb" href="#"><img src=${cam.image.current.thumbnail} alt="thumbnail" /></a>
             ${watchText}
             <ul>
-                <li><b>Location:</b> <a target="_blank" href=${cam.location.wikipedia}>${cam.location.city}. ${cam.location.region}</a></li>
-                <li><b>Coordinates:</b> ${cam.location.latitude}. ${cam.location.longitude}</li>
+                <li><b>Location:</b> <a target="_blank" href=${cam.location.wikipedia}>${cam.location.city}. ${
+        cam.location.region
+      }</a></li>
+                <li><b>Coordinates:</b> ${parseFloat(cam.location.latitude).toFixed(3)}, ${parseFloat(
+        cam.location.longitude
+      ).toFixed(3)}</li>
                 <li><b>Views:</b> ${cam.statistics.views}</li>
             </ul>
             <br>
 
             </div>
             `,
-    //   smallText: `<div id="camtext"><a id="thumb" href="#"><img src=${cam.image.current.thumbnail} alt="thumbnail" /></a></div">
-    //   <h4>${cam.title}</h4>`,
-    //   content: `<div id="camtext"><a id="thumb" href="#"><img src=${cam.image.current.thumbnail} alt="thumbnail" /></a></div">
-    //   <h4>${cam.title}</h4>`,
-    smallText: cam.title,
-    content: cam.title,
-      naxWidth: 400,
+      smallText: `<div id="camtext"><a id="thumb" href="#"><img src=${cam.image.current.thumbnail} alt="thumbnail" /></a></div">
+      <h4>${cam.title}</h4>`,
+      content: `<div id="camtext"><a id="thumb" href="#"><img src=${cam.image.current.thumbnail} alt="thumbnail" /></a></div">
+      <h4>${cam.title}</h4>`,
+      // smallText: cam.title,
+      // content: cam.title,
+      maxWidth: 400,
 
       disableAutoPan: true,
     });
@@ -302,15 +300,20 @@ function updateMarkers(result) {
             className: "bubbles",
           },
           icon: {
-            path: `${boxPaths[2]}`,
-            fillColor: "red",
-            strokeColor: "black",
-            strokeWeight: 1,
-            scale: 0.4,
-            strokeOpacity: 1.0,
-            fillOpacity: 0.8,
-            anchor: new google.maps.Point(0, 70),
+            url: `${camLabel}${boxSize}.svg`,
+            scaledSize: new google.maps.Size(34, 34),
+            anchor: new google.maps.Point(5, 24),
+            labelOrigin: new google.maps.Point(2, 4),
           },
+          zindex: 0,
+          // path: `${boxPaths[2]}`,
+          // fillColor: "red",
+          // strokeColor: "black",
+          // strokeWeight: 1,
+          // scale: 0.4,
+          // strokeOpacity: 1.0,
+          // fillOpacity: 0.8,
+          // anchor: new google.maps.Point(0, 70),
         });
 
         //add zoom in event listener to bubble
@@ -328,9 +331,11 @@ function updateMarkers(result) {
         position: { lat: cam.location.latitude, lng: cam.location.longitude },
         icon: {
           url: camImage,
+          scaledSize: new google.maps.Size(26, 26),
           origin: new google.maps.Point(0, 0),
           anchor: new google.maps.Point(0, 0),
         },
+        zindex: 1,
       });
       markers.push(marker);
 
@@ -357,6 +362,11 @@ function updateMarkers(result) {
       // on click, open bigtext
       marker.addListener("click", () => {
         isOpen = marker;
+        infowindow.open({
+          anchor: marker,
+          map,
+          shouldFocus: false,
+        });
         infowindow.setContent(infowindow.fullText);
         //document.querySelector("#camtitle").innerText = infowindow.smallText;
       });
