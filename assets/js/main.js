@@ -306,14 +306,6 @@ function updateMarkers(result) {
             labelOrigin: new google.maps.Point(2, 4),
           },
           zindex: 0,
-          // path: `${boxPaths[2]}`,
-          // fillColor: "red",
-          // strokeColor: "black",
-          // strokeWeight: 1,
-          // scale: 0.4,
-          // strokeOpacity: 1.0,
-          // fillOpacity: 0.8,
-          // anchor: new google.maps.Point(0, 70),
         });
 
         //add zoom in event listener to bubble
@@ -368,7 +360,7 @@ function updateMarkers(result) {
           shouldFocus: false,
         });
         infowindow.setContent(infowindow.fullText);
-        //document.querySelector("#camtitle").innerText = infowindow.smallText;
+        document.querySelector("#camtitle").innerText = cam.title;
       });
 
       // on closeclick, close bigtext
