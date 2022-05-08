@@ -249,7 +249,8 @@ function updateMarkers(result) {
       filteredCount += cam.map.clustersize;
     }
     if (cam.player.live.available == true) {
-      watchText = `<div id="linkcontainer"><span class="watch"><b><a class="popuplink" target="modalcam" href=https://webcams.windy.com/webcams/stream/${cam.id}>LIVE</a></b> | <b><a class="popuplink" target="modalcam" href=${cam.player.day.embed}>Timelapse</a></b></span></div>`;
+      watchText = `<div id="linkcontainer"><span class="watch"><b><a class="popuplink" target="modalcam" href=${cam.player.live.embed}>LIVE</a></b> | <b><a class="popuplink" target="modalcam" href=${cam.player.day.embed}>Timelapse</a></b></span></div>`;
+      //watchText = `<div id="linkcontainer"><span class="watch"><b><a class="popuplink" target="modalcam" href=https://webcams.windy.com/webcams/stream/${cam.id}>LIVE</a></b> | <b><a class="popuplink" target="modalcam" href=${cam.player.day.embed}>Timelapse</a></b></span></div>`;
     } else {
       watchText = `<div id="linkcontainer"><span class="watch"><a class="popuplink" target="modalcam" href=${cam.player.day.embed}>Timelapse</a></b></span></div>`;
     }
@@ -265,6 +266,8 @@ function updateMarkers(result) {
                 <li><b>Location:</b> <a target="_blank" href=${cam.location.wikipedia}>${cam.location.city}. ${
         cam.location.region
       }</a></li>
+                <li><b>Country:</b> ${cam.location.country}
+                </li>
                 <li><b>Coordinates:</b> ${parseFloat(cam.location.latitude).toFixed(3)}, ${parseFloat(
         cam.location.longitude
       ).toFixed(3)}</li>
