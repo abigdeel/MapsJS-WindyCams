@@ -36,7 +36,7 @@ const signal = controller.signal;
 
 //restore the last selected options.
 function restoreOptions() {
-  if (localStorage.firstTime == "false") {
+  if (localStorage.firstTime == "false" || localStorage.firstTime == undefined) {
     welcomeModal.style.display = "block";
   }
   if (localStorage.live) {
