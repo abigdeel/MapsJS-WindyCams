@@ -47,83 +47,35 @@ img {
   max-height: 400px;
 }
 
+/* Styling for options / stats section */
 .mapheader {
   display: flex;
-  line-height: 1em;
-}
-
-/* Styling for options / stats section */
-.options,
-.stats {
   background-color: #383b40;
+  line-height: 1em;
   border: black solid 3px;
   border-radius: 20px;
+  border-bottom: 0px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+
+.options,
+.stats {
   display: inline-flex;
   flex-direction: row;
   font-weight: bold;
 }
 .options {
   width: 65%;
-  padding: 3px 20px 3px 6px;
   justify-content: flex-start;
-  border-bottom-left-radius: 0px;
-  border-top-right-radius: 0px;
-  border-bottom-right-radius: 0px;
-  border-bottom: 0px;
-  border-right: 0px;
   gap: 30px;
 }
 
 .stats {
   width: 35%;
-  padding: 3px 7px 3px 20px;
   text-align: center;
   justify-content: flex-end;
-  border-bottom-left-radius: 0px;
-  border-top-left-radius: 0px;
-  border-bottom-right-radius: 0px;
-  border-bottom: 0px;
-  border-left: 0px;
   column-gap: 30px;
-}
-
-@media only screen and (max-width: 1000px) {
-  body {
-    margin: 0;
-  }
-  #wrap {
-    padding: 0;
-  }
-
-  .mapheader {
-    flex-wrap: wrap;
-  }
-  .options,
-  .stats {
-    justify-content: center;
-    width: 100%;
-    display: flex;
-    padding: 5px 0px;
-    font-weight: bold;
-  }
-
-  .options {
-    border-right: 3px solid black;
-    border-top-right-radius: 20px;
-    border-bottom: none;
-  }
-  .stats {
-    border-left: 3px solid black;
-    border-top-right-radius: 0px;
-    border-top: 1px solid #7a818c;
-    position: relative;
-  }
-  #helpbox {
-    position: absolute;
-    right: 0;
-    height: 50px;
-    margin-right: 5px;
-  }
 }
 
 #total,
@@ -134,6 +86,7 @@ img {
 }
 
 /* map header contents styling */
+
 #version {
   color: grey;
   font-size: 0.6em;
@@ -143,12 +96,11 @@ img {
   text-align: end;
 }
 
-.filters.all {
-  border-radius: 10%;
-  flex-shrink: 0;
-  padding: 0 0 7px 20px;
-  background-color: #202225;
+.filters,
+.dropdown {
+  user-select: none;
 }
+
 .filters.all label {
   left: 14px;
 }
@@ -159,11 +111,27 @@ img {
   right: 9px;
 }
 
+.filters.all {
+  padding: 0 0 0 10px;
+  flex-shrink: 0;
+  background-color: #202225;
+  border-top-left-radius: 18px;
+}
+
+.dropdown {
+  margin-bottom: 4px;
+}
+
+.stats {
+  user-select: none;
+}
+
 /* help box styling */
 #helpbox {
   min-width: 50px;
   cursor: pointer;
-  border-radius: 10%;
+  border-top-right-radius: 18px;
+
   font-size: 1.25em;
   transition: all 0.25s;
   background-color: #202225;
@@ -173,7 +141,6 @@ img {
 #helpbox:hover {
   transition: all 0.25s;
   font-size: 2em;
-  border-radius: 22%;
   background-color: #848a96;
   color: #ffff8d;
 }
@@ -186,12 +153,8 @@ img {
 }
 
 /* 
- * Always set the map height explicitly to define the size of the div element
- * that contains the map. 
+Map info window, links, text styling
  */
-
-.linkcontainer {
-}
 
 .watch {
   font-size: 1.5em;
@@ -240,6 +203,11 @@ iframe {
 
 #camtext h3 {
   text-align: center;
+  margin: 0 0 5px 0;
+}
+
+#camtext ul {
+  margin: 5px 0 0 0;
 }
 
 #camtext #thumb {
@@ -257,10 +225,10 @@ h4 {
 
 .bubbles {
   position: relative;
+  padding: auto 0 !important;
   font-size: 1.1em !important;
   font-weight: bold;
-  left: 15px;
-  top: 11px;
+  overflow-y: none !important;
   color: white !important;
   font-family: "Roboto Condensed", Arial, sans-serif !important;
 }
@@ -594,6 +562,10 @@ REFRESHING CAMS ANIMATION
 @media only screen and (max-width: 1000px) {
   body {
     font-size: 1.1em;
+    margin: 0;
+  }
+  #wrap {
+    padding: 0;
   }
 
   h1 {
@@ -627,25 +599,76 @@ REFRESHING CAMS ANIMATION
     line-height: 1.1em;
   }
 
-  .filters.all {
-    border-radius: 10%;
-    margin-left: 5px;
-    padding: 0 0 7px 15px;
-    background-color: #202225;
-  }
   .filters.all label {
-    left: 5px;
+    left: 3px;
   }
 
-  #helpbox {
-    height: 38px;
+  .filters.all span {
+    padding-left: 3px;
+  }
+
+  .filters.live span {
+    padding-left: 8px;
+  }
+  .filters.hd span {
+    padding-left: 5px;
+  }
+
+  .options,
+  .stats {
+    justify-content: center;
+    width: 100%;
+    display: flex;
+    font-weight: bold;
+  }
+
+  .stats {
+    padding-top: 3px;
+    padding-bottom: 5px;
+  }
+
+  .filters.all,
+  .filters.live,
+  .filters.hd {
+    margin: 0;
   }
 
   .options {
-    height: 60px;
+    gap: 20px;
+  }
+
+  .dropdown {
+    top: 2x;
+  }
+  .dropdown .dropdown-list {
+    top: 43px;
+  }
+
+  .dropdown .dropdown-label {
+    height: 25px;
+  }
+  #helpbox {
+    position: absolute;
+    right: 3px;
+    height: 40px;
+    border-top-right-radius: 0px;
   }
 
   .options label {
     bottom: 2px;
+  }
+
+  .mapheader {
+    flex-wrap: wrap;
+  }
+}
+
+@media only screen and (max-width: 700px) {
+  #camModal .modal-body {
+    padding: 0px;
+  }
+
+  #camModal .modal-content {
+    width: 90%;
   }
 }

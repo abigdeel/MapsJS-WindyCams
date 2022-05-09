@@ -1,8 +1,10 @@
 //Styling
+// mobile add play button overlay <width less than 700px
 
 //JS
 // bbox vs viewport?
 // bbox handling when zoomed out, map edges. ***
+//update how to use
 
 // variables
 let map, infoWindow, apiType, apiZoom, camImage;
@@ -63,7 +65,6 @@ function restoreOptions() {
     }
   } else if (!localStorage.catName) {
     localStorage.catValue = "false";
-    
   }
   restored = true;
 }
@@ -230,9 +231,7 @@ async function refreshCams(pos) {
     .then((response) => response.json())
     .then((result) => updateMarkers(result))
     .catch((error) => console.log("error", error));
-  // window.resizedFinished = setTimeout(function () {
   loader.style.display = "none";
-  // }, 500);
 }
 
 // clears markers from map and window text
@@ -420,7 +419,7 @@ function initMap() {
       style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
     },
     streetViewControl: false,
-    fullscreenControl: true,
+    fullscreenControl: false,
     keyboardShortcuts: false,
     minZoom: 3,
   });
