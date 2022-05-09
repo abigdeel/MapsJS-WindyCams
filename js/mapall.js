@@ -1,6 +1,5 @@
 //Styling
-// refreshing cams popup...
-// update webcam popup viewer header
+// fix span close button
 
 //JS
 // bbox vs viewport?
@@ -16,6 +15,8 @@ let camFrame = document.getElementById("camframe");
 let camModal = document.getElementById("camModal");
 let welcomeModal = document.getElementById("welcomeModal");
 let span = document.getElementsByClassName("close")[0];
+let mapDiv = document.getElementById("map");
+let loader = document.getElementById("loader");
 
 let firstTime = document.getElementById("firsttime");
 let help = document.getElementById("helpbox");
@@ -29,6 +30,9 @@ let filtered = document.getElementById("filtered");
 let shown = document.getElementById("shown");
 
 let [nearby, property, catStr] = Array(3).fill("");
+
+const controller = new AbortController();
+const signal = controller.signal;
 
 //restore the last selected options.
 function restoreOptions() {
@@ -76,6 +80,12 @@ window.onload = function () {
     .then((result) => (total.innerText = result.result.total))
     .catch((error) => console.log("error", error));
 };
+
+// function to abort fetch to prevent excess marker drops
+function abortRefresh() {
+  console.log("Starting new refresh request...");
+  controller.abort();
+}
 
 // to avoid 'idle' api event calls when resizing, set flag until resizing complete
 window.addEventListener("resize", function () {
@@ -171,8 +181,8 @@ function filterCheck(zoom) {
     apiZoom = `,${zoom}`;
     property = "";
     catStr = "";
-    camImage = "assets/icons/cam1.svg";
-    camLabel = "assets/icons/label4";
+    camImage = "icons/cam1.svg";
+    camLabel = "icons/label4";
 
     //otherwise use list/bbox call with filters
   } else {
@@ -191,10 +201,10 @@ function filterCheck(zoom) {
     //set property query parameter and map marker icons
     if (live.checked == true && hd.checked == true) {
       property = "property=live,hd/";
-      camImage = "assets/icons/live2.svg";
+      camImage = "icons/live2.svg";
     } else if (live.checked == true && hd.checked == false) {
       property = "property=live/";
-      camImage = "assets/icons/live2.svg";
+      camImage = "icons/live2.svg";
     } else if (live.checked == false && hd.checked == true) {
       property = "property=hd/";
     }
@@ -220,6 +230,9 @@ async function refreshCams(pos) {
     .then((response) => response.json())
     .then((result) => updateMarkers(result))
     .catch((error) => console.log("error", error));
+  // window.resizedFinished = setTimeout(function () {
+  loader.style.display = "none";
+  // }, 500);
 }
 
 // clears markers from map and window text
@@ -403,8 +416,11 @@ function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: 43.67225961466724, lng: -79.60014046738281 },
     zoom: 6,
+    mapTypeControlOptions: {
+      style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+    },
     streetViewControl: false,
-    fullscreenControl: false,
+    fullscreenControl: true,
     keyboardShortcuts: false,
     minZoom: 3,
   });
@@ -415,8 +431,15 @@ function initMap() {
   infoWindow = new google.maps.InfoWindow();
 
   refreshEvent = map.addListener("idle", () => {
-    // refreshing maps popup
     if (resizing == false) {
+      if (loader.style.display == "block") {
+        abortRefresh();
+        clearMarkers();
+        loader.style.display == "none";
+      }
+      offset = mapDiv.clientHeight / 2 + mapDiv.offsetTop + loader.clientHeight / 2;
+      loader.style.top = `${offset}px`;
+      loader.style.display = "block";
       pos = map.getBounds();
       mid = map.getCenter().toJSON();
       restored == true || restoreOptions();

@@ -268,13 +268,85 @@ h4 {
   box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
   margin: 10px;
   padding: 0 0.5em;
-  font: 400 18px Roboto, Arial, sans-serif;
+  font: 400 14px Roboto, Arial, sans-serif;
   overflow: hidden;
   height: 40px;
   cursor: pointer;
 }
 .custom-map-control-button:hover {
   background: rgb(235, 235, 235);
+}
+
+/******************************************
+REFRESHING CAMS ANIMATION
+  /*******************************************/
+
+#loader {
+  display: block;
+  position: absolute;
+  z-index: 20;
+  left: 50%;
+  top: 50px;
+  width: 100px;
+  height: 100px;
+  margin: -75px 0 0 -75px;
+  border-radius: 50%;
+  border: 5px solid transparent;
+  border-top-color: #3498db;
+
+  -webkit-animation: spin 2s linear infinite; /* Chrome, Opera 15+, Safari 5+ */
+  animation: spin 2s linear infinite; /* Chrome, Firefox 16+, IE 10+, Opera */
+}
+
+#loader:before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  border-radius: 50%;
+  border: 5px solid transparent;
+  border-top-color: #e74c3c;
+
+  -webkit-animation: spin 3s linear infinite; /* Chrome, Opera 15+, Safari 5+ */
+  animation: spin 3s linear infinite; /* Chrome, Firefox 16+, IE 10+, Opera */
+}
+
+#loader:after {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  bottom: 15px;
+  border-radius: 50%;
+  border: 5px solid transparent;
+  border-top-color: #f9c922;
+
+  -webkit-animation: spin 1.5s linear infinite; /* Chrome, Opera 15+, Safari 5+ */
+  animation: spin 1.5s linear infinite; /* Chrome, Firefox 16+, IE 10+, Opera */
+}
+
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg); /* Chrome, Opera 15+, Safari 3.1+ */
+    transform: rotate(0deg); /* Firefox 16+, IE 10+, Opera */
+  }
+  100% {
+    -webkit-transform: rotate(360deg); /* Chrome, Opera 15+, Safari 3.1+ */
+    transform: rotate(360deg); /* Firefox 16+, IE 10+, Opera */
+  }
+}
+@keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg); /* Chrome, Opera 15+, Safari 3.1+ */
+    transform: rotate(0deg); /* Firefox 16+, IE 10+, Opera */
+  }
+  100% {
+    -webkit-transform: rotate(360deg); /* Chrome, Opera 15+, Safari 3.1+ */
+    transform: rotate(360deg); /* Firefox 16+, IE 10+, Opera */
+  }
 }
 
 /* styling for dropdown box */
@@ -320,7 +392,7 @@ h4 {
   cursor: pointer;
 }
 .dropdown .dropdown-label:before {
-  content: ' \25BC';
+  content: " \25BC";
   float: right;
 }
 .dropdown.on .dropdown-list {
@@ -332,7 +404,7 @@ h4 {
   transition-delay: 0.2s;
 }
 .dropdown.on .dropdown-label:before {
-  content: ' \25B2';
+  content: " \25B2";
 }
 .dropdown [type="checkbox"] {
   position: relative;
