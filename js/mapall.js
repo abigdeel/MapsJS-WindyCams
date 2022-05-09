@@ -37,14 +37,14 @@ const signal = controller.signal;
 
 //restore the last selected options.
 
-localStorage.version = version.innerText;
-
 function restoreOptions() {
   if (
     localStorage.firstTime == "false" ||
     localStorage.firstTime == undefined ||
+    !localStorage.version ||
     localStorage.version !== version.innerText
   ) {
+    localStorage.version = version.innerText;
     welcomeModal.style.display = "block";
   }
   if (localStorage.live) {
