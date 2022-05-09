@@ -41,10 +41,8 @@ function restoreOptions() {
   if (
     localStorage.firstTime == "false" ||
     localStorage.firstTime == undefined ||
-    !localStorage.version ||
     localStorage.version !== version.innerText
   ) {
-    localStorage.version = version.innerText;
     welcomeModal.style.display = "block";
   }
   if (localStorage.live) {
@@ -66,6 +64,7 @@ function restoreOptions() {
   } else if (!localStorage.catName) {
     localStorage.catValue = "false";
   }
+  localStorage.version = version.innerText;
   restored = true;
 }
 
