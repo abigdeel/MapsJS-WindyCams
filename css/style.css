@@ -481,6 +481,10 @@ REFRESHING CAMS ANIMATION
   height: 15px;
 }
 
+#camModal #mobileplay {
+  display: none;
+}
+
 #onlyonce {
   font-size: 1.25em;
 }
@@ -670,5 +674,13 @@ REFRESHING CAMS ANIMATION
 
   #camModal .modal-content {
     width: 90%;
+  }
+
+  #camModal #mobileplay {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 }
