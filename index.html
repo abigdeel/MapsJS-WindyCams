@@ -2,12 +2,9 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500&family=Encode+Sans+SC&family=Roboto&family=Roboto+Condensed&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@500&family=Encode+Sans+SC:wght@400;700&family=Roboto&family=Roboto+Condensed:wght@300&display=swap" rel="stylesheet"> 
 
     <link rel="stylesheet" href="css/style.css" />
     <!-- <link rel="stylesheet" href="css/autocomplete.min.css" /> -->
@@ -73,8 +70,10 @@
                 <li>To see grouped map markers again, toggle filters off</li>
               </ul>
 
-              <input type="checkbox" id="firsttime" name="firsttime" />
-              <label id="onlyonce" for="firsttime">Don't show this again (click ? to bring this up)</label>
+              <div id="dontshowbox">
+                <input type="checkbox" id="firsttime" name="firsttime" />
+                <label id="onlyonce" for="firsttime">Don't show this again (click ? to bring this up)</label>
+              </div>
             </section>
           </div>
 
@@ -110,7 +109,7 @@
         </div>
       </div>
 
-      <span id="version">v0.4 05/08/2022</span>
+      <span id="version">v0.4 05/09/2022</span>
       <div class="mapheader">
         <section class="options">
           <div class="filters all">

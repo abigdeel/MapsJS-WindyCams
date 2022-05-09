@@ -35,6 +35,7 @@ h1 {
   font-size: 2.75em;
   line-height: 1em;
   margin: 0.5em;
+  font-weight: bold;
 }
 
 h2 {
@@ -103,6 +104,7 @@ img {
     width: 100%;
     display: flex;
     padding: 5px 0px;
+    font-weight: bold;
   }
 
   .options {
@@ -143,6 +145,7 @@ img {
 
 .filters.all {
   border-radius: 10%;
+  flex-shrink: 0;
   padding: 0 0 7px 20px;
   background-color: #202225;
 }
@@ -255,6 +258,7 @@ h4 {
 .bubbles {
   position: relative;
   font-size: 1.1em !important;
+  font-weight: bold;
   left: 15px;
   top: 11px;
   color: white !important;
@@ -284,7 +288,7 @@ REFRESHING CAMS ANIMATION
 #loader {
   display: block;
   position: absolute;
-  z-index: 20;
+  z-index: 7;
   left: 50%;
   top: 50px;
   width: 100px;
@@ -497,11 +501,9 @@ REFRESHING CAMS ANIMATION
 }
 
 #welcomeModal .modal-body {
-  padding: 30px 30px 40px 30px;
-}
-
-#firsttime {
-  margin: 30px 0px 0px 20px;
+  padding: 30px 40px 40px 40px;
+  font-size: 0.9em;
+  line-height: 1em;
 }
 
 .modal-body [type="checkbox"] {
@@ -513,6 +515,14 @@ REFRESHING CAMS ANIMATION
 
 #onlyonce {
   font-size: 1.25em;
+}
+
+#dontshowbox {
+  display: inline-block;
+  background-color: rgba(64, 66, 73, 0.5);
+  border-radius: 7px;
+  padding: 8px 15px 12px 11px;
+  margin: 25px 0px 0px 3px;
 }
 
 /* Add Animation */
@@ -543,8 +553,8 @@ REFRESHING CAMS ANIMATION
   color: white;
   position: relative;
   float: right;
-  top: 12px;
-  font-size: 38px;
+  top: 5px;
+  font-size: 80px;
   font-weight: bold;
 }
 
@@ -613,6 +623,8 @@ REFRESHING CAMS ANIMATION
 
   #welcomeModal .modal-body {
     padding: 20px 15px 20px 15px;
+    font-size: 1em;
+    line-height: 1.1em;
   }
 
   .filters.all {
@@ -623,7 +635,6 @@ REFRESHING CAMS ANIMATION
   }
   .filters.all label {
     left: 5px;
-    bottom: 8px;
   }
 
   #helpbox {

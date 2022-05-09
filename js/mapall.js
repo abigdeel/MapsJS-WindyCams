@@ -1,9 +1,8 @@
 //Styling
-// fix span close button
 
 //JS
 // bbox vs viewport?
-//bbox handling when zoomed out, map edges.
+// bbox handling when zoomed out, map edges. ***
 
 // variables
 let map, infoWindow, apiType, apiZoom, camImage;
@@ -35,8 +34,15 @@ const controller = new AbortController();
 const signal = controller.signal;
 
 //restore the last selected options.
+
+localStorage.version = version.innerText;
+
 function restoreOptions() {
-  if (localStorage.firstTime == "false" || localStorage.firstTime == undefined) {
+  if (
+    localStorage.firstTime == "false" ||
+    localStorage.firstTime == undefined ||
+    localStorage.version !== version.innerText
+  ) {
     welcomeModal.style.display = "block";
   }
   if (localStorage.live) {
@@ -55,6 +61,9 @@ function restoreOptions() {
       document.querySelector(`label[class='dropdown-label']`).text = `Only show: ${category.curr.value}`;
       filters.checked = true;
     }
+  } else if (!localStorage.catName) {
+    localStorage.catValue = "false";
+    
   }
   restored = true;
 }
@@ -96,26 +105,17 @@ window.addEventListener("resize", function () {
   }, 500);
 });
 
+// Modal event listener
 // open modal if clicked on any live or timelapse link
 window.addEventListener("click", function (e) {
   if (e.target.className == "popuplink") {
     camModal.style.display = "block";
+    //close if clicked on X or outside of modal
+  } else if (e.target.className == "close" || e.target.className == "modal") {
+    camFrame.setAttribute("src", "about:blank");
+    e.target.closest(".modal").style.display = "none";
   }
 });
-
-//hide modal if clicked on X
-span.onclick = function (e) {
-  camFrame.setAttribute("src", "about:blank");
-  e.target.closest(".modal").style.display = "none";
-};
-
-//hide any open modal window if clicked outside of window
-window.onclick = function (e) {
-  if (e.target.className == "modal") {
-    camFrame.setAttribute("src", "about:blank");
-    e.target.style.display = "none";
-  }
-};
 
 document.querySelector(".options").addEventListener("click", function (e) {
   //handle filter toggle on/off
@@ -135,7 +135,7 @@ document.querySelector(".options").addEventListener("click", function (e) {
       if (category.curr) {
         category.curr.checked == category.last || category.curr.click();
       }
-      if (!localStorage.category && !localStorage.live && !localStorage.hd) {
+      if (!localStorage.catName && !localStorage.live && !localStorage.hd) {
         live.checked = true;
         localStorage.live = live.checked;
       }
@@ -164,9 +164,9 @@ document.querySelector(".options").addEventListener("click", function (e) {
     }
 
     //handle filter toggle being set if anything else is selected or unselected
-    if (live.checked == true || hd.checked == true || category.curr.checked == true) {
+    if (live.checked == true || hd.checked == true || localStorage.catValue == "true") {
       filters.checked = true;
-    } else if (live.checked == false && hd.checked == false && category.curr.checked == false) {
+    } else if (live.checked == false && hd.checked == false && localStorage.catValue == "false") {
       filters.checked = false;
     }
     localStorage.setItem("filters", filters.checked);
