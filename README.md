@@ -1,7 +1,9 @@
 # MapsJS-WindyCams
 Adeel Syed
+
 Last Updated: May 9, 2022
-==========================
+
+---------------------------
 
 
 This project combines the Google Maps Javascript API with the Windy webcam API.
