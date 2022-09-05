@@ -1,6 +1,3 @@
-//Styling
-// mobile add play button overlay <width less than 700px
-
 //JS
 // bbox vs viewport?
 // bbox handling when zoomed out, map edges. ***
@@ -207,6 +204,7 @@ function filterCheck(zoom) {
       camImage = "icons/live2.svg";
     } else if (live.checked == false && hd.checked == true) {
       property = "property=hd/";
+      camImage = "icons/cam2.svg";
     }
   }
 }
@@ -224,7 +222,7 @@ async function refreshCams(pos) {
   };
 
   await fetch(
-    `https://api.windy.com/api/webcams/v2/${apiType}${pos.Ab.j},${pos.Va.j},${pos.Ab.h},${pos.Va.h}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
+    `https://api.windy.com/api/webcams/v2/${apiType}${pos.yb.hi},${pos.Qa.hi},${pos.yb.lo},${pos.Qa.lo}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
     requestOptions
   )
     .then((response) => response.json())
