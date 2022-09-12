@@ -222,7 +222,7 @@ async function refreshCams(pos) {
   };
 
   await fetch(
-    `https://api.windy.com/api/webcams/v2/${apiType}${pos.yb.hi},${pos.Qa.hi},${pos.yb.lo},${pos.Qa.lo}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
+    `https://api.windy.com/api/webcams/v2/${apiType}${pos.lat.hi},${pos.lng.hi},${pos.lat.lo},${pos.lng.lo}${apiZoom}/orderby=random/${catStr}${property}limit=50&?show=webcams:category, image, location, map, player, property, statistics, url;properties;categories`,
     requestOptions
   )
     .then((response) => response.json())
@@ -437,6 +437,8 @@ function initMap() {
       loader.style.top = `${offset}px`;
       loader.style.display = "block";
       pos = map.getBounds();
+      pos.lat = pos[Object.keys(pos)[0]];
+      pos.lng = pos[Object.keys(pos)[1]];
       mid = map.getCenter().toJSON();
       restored == true || restoreOptions();
       clearMarkers();
