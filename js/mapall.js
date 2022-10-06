@@ -4,8 +4,8 @@
 //update how to use
 
 // variables
-let map, infoWindow, apiType, apiZoom, camImage;
-let [resizing, restored] = [false, false];
+let map, infoWindow, apiType, apiZoom, camImage, filterTimeout;
+let [resizing, restored, filtering] = [false, false, false];
 let markers = [];
 let bubbles = [];
 
@@ -168,6 +168,15 @@ document.querySelector(".options").addEventListener("click", function (e) {
     }
     localStorage.setItem("filters", filters.checked);
   }
+
+  // Refresh cams 1s after filters are toggled. display loader immediately though.
+  clearTimeout(filterTimeout);
+  loader.style.display = "block";
+  filtering = true;
+  filterTimeout = window.setTimeout(function () {
+    filtering = false;
+    refreshUI();
+  }, 1500);
 });
 
 //form API call string based on filters checked
@@ -408,6 +417,27 @@ function updateMarkers(result) {
   }
 }
 
+function refreshUI() {
+  if (resizing == false && filtering == false) {
+    if (loader.style.display == "block") {
+      abortRefresh();
+      clearMarkers();
+      loader.style.display == "none";
+    }
+    offset = mapDiv.clientHeight / 2 + mapDiv.offsetTop + loader.clientHeight / 2;
+    loader.style.top = `${offset}px`;
+    loader.style.display = "block";
+    pos = map.getBounds();
+    pos.lat = pos[Object.keys(pos)[0]];
+    pos.lng = pos[Object.keys(pos)[1]];
+    mid = map.getCenter().toJSON();
+    restored == true || restoreOptions();
+    clearMarkers();
+    filterCheck(map.zoom);
+    refreshCams(pos);
+  }
+}
+
 function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: 43.67225961466724, lng: -79.60014046738281 },
@@ -426,25 +456,8 @@ function initMap() {
 
   infoWindow = new google.maps.InfoWindow();
 
-  refreshEvent = map.addListener("idle", () => {
-    if (resizing == false) {
-      if (loader.style.display == "block") {
-        abortRefresh();
-        clearMarkers();
-        loader.style.display == "none";
-      }
-      offset = mapDiv.clientHeight / 2 + mapDiv.offsetTop + loader.clientHeight / 2;
-      loader.style.top = `${offset}px`;
-      loader.style.display = "block";
-      pos = map.getBounds();
-      pos.lat = pos[Object.keys(pos)[0]];
-      pos.lng = pos[Object.keys(pos)[1]];
-      mid = map.getCenter().toJSON();
-      restored == true || restoreOptions();
-      clearMarkers();
-      filterCheck(map.zoom);
-      refreshCams(pos);
-    }
+  map.addListener("idle", () => {
+    refreshUI();
   });
 
   map.addListener("dragend", () => {
@@ -469,7 +482,6 @@ function initMap() {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           };
-
           //   infoWindow.setPosition(pos);
           //   infoWindow.setContent("Location found.");
           //   infoWindow.open(map);
@@ -521,7 +533,7 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
     });
 
     this.$inputs.on("change", function (e) {
-      // jquery code, don't need it anymore.
+      // don't need it anymore.
       // if (_this.$el.find(":checked").length >= 1) {
       //   _this.$inputs.prop("checked", false);
       //   e.currentTarget.checked = !e.currentTarget.checked;
@@ -547,28 +559,8 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
       this.$label.html("Show All");
     } else if (checked.length === 1) {
       this.$label.html(`Only show: ${checked.parent("label").text()}`);
-      // } else if (checked.length === this.$inputs.length) {
-      //   this.$label.html("All Selected");
-      //   this.areAllChecked = true;
-      //   this.$checkAll.html("Uncheck All");
-      // } else {
-      //   this.$label.html(checked.length + " Selected");
     }
   };
-
-  //   CheckboxDropdown.prototype.onCheckAll = function (checkAll) {
-  //     if (!this.areAllChecked || checkAll) {
-  //       this.areAllChecked = true;
-  //       this.$checkAll.html("Uncheck All");
-  //       this.$inputs.prop("checked", true);
-  //     } else {
-  //       this.areAllChecked = false;
-  //       this.$checkAll.html("Check All");
-  //       this.$inputs.prop("checked", false);
-  //     }
-
-  //     this.updateStatus();
-  //   };
 
   CheckboxDropdown.prototype.toggleOpen = function (forceOpen) {
     var _this = this;
