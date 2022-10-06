@@ -21,6 +21,7 @@ let help = document.getElementById("helpbox");
 
 let filters = document.getElementById("filters");
 let category = document.getElementsByClassName("category");
+let label = document.getElementsByClassName("dropdown-label")[0];
 let live = document.getElementById("live");
 let hd = document.getElementById("hd");
 let total = document.getElementById("total");
@@ -44,6 +45,8 @@ function restoreOptions() {
   }
   if (localStorage.live) {
     live.checked = JSON.parse(localStorage.live);
+  } else {
+    live.checked = true;
   }
   if (localStorage.hd) {
     hd.checked = JSON.parse(localStorage.hd);
@@ -55,7 +58,7 @@ function restoreOptions() {
     category.curr = document.querySelector(`input[value=${localStorage.catName}]`);
     category.curr.checked = JSON.parse(localStorage.catValue);
     if (category.curr.checked == true) {
-      document.querySelector(`label[class='dropdown-label']`).text = `Only show: ${category.curr.value}`;
+      label.text = `Only show: ${category.curr.value}`;
       filters.checked = true;
     }
   } else if (!localStorage.catName) {
@@ -170,13 +173,16 @@ document.querySelector(".options").addEventListener("click", function (e) {
   }
 
   // Refresh cams 1s after filters are toggled. display loader immediately though.
-  clearTimeout(filterTimeout);
-  loader.style.display = "block";
-  filtering = true;
-  filterTimeout = window.setTimeout(function () {
-    filtering = false;
-    refreshUI();
-  }, 1500);
+
+  if (e.target.className.includes("ref")) {
+    clearTimeout(filterTimeout);
+    loader.style.display = "block";
+    filtering = true;
+    filterTimeout = window.setTimeout(function () {
+      filtering = false;
+      refreshUI();
+    }, 1500);
+  }
 });
 
 //form API call string based on filters checked
@@ -407,7 +413,7 @@ function updateMarkers(result) {
     shown.innerText = `${result.result.total}*`;
   } else {
     filtered.innerText = `${result.result.total}`;
-    shown.innerText = `${result.result.limit}`;
+    shown.innerHTML = result.result.total > 50 ? 50 : `${result.result.total}`;
   }
 
   if (result.result.total > result.result.limit) {
@@ -568,6 +574,7 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
     if (!this.isOpen || forceOpen) {
       this.isOpen = true;
       this.$el.addClass("on");
+      label.classList.remove("ref");
       $(document).on("click", function (e) {
         if (!$(e.target).closest("[data-control]").length) {
           _this.toggleOpen();
@@ -576,6 +583,7 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
     } else {
       this.isOpen = false;
       this.$el.removeClass("on");
+      label.classList.add("ref");
       $(document).off("click");
     }
   };

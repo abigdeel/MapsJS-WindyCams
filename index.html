@@ -28,7 +28,7 @@
       <section class="welcome">
         <p>
           This site combines Google Maps and Windy's truly massive repository of webcams! (55,000+)<br />
-          Many of the webcams are 24 hour+ timelapses, but there are thousands of live cameras too. Have fun exploring!
+          Most of the webcams are 24 hour+ timelapses, but there are thousands of live cameras.
         </p>
       </section>
 
@@ -44,13 +44,9 @@
             <section class="instructions">
               <h2>How to Use</h2>
               <ul>
-                <li>Panning or zooming refreshes the map and populates camera markers.</li>
-                <li>The map will show cameras in the area and group nearby cameras.</li>
-                <li>
-                  Tap the camera icon to see more info and webcam links. Tap the number above the marker to zoom in
-                  further.
-                </li>
-                <li>Click anywhere on the map to close any open info windows.</li>
+                <li>Pan, zoom, or toggle filters to refresh the map.</li>
+                <li>Tap the camera icon to see more info and webcam links.</li>
+                <li>Click anywhere on the map to close open info windows.</li>
               </ul>
               <br />
               <h2>Notes</h2>
@@ -60,15 +56,14 @@
                   If <b>any</b> filters are active, webcam clustering is disabled and only 50 markers can be shown
                   (Windy limitation)
                 </li>
+                <br />
                 <li>
-                  You can see above the map how many markers are currently shown and if any are hidden. To see them,
-                  zoom in further or filter by categories.
+                  You can see how many map markers are shown and if any results are hidden. <br />Zoom in further and/or
+                  pan around to see them.
                 </li>
                 <li>Live streams will always open in a new window when you hit play.</li>
-
-                <br />
-                <li>To see grouped map markers again, toggle filters off</li>
               </ul>
+              <br />
 
               <div id="dontshowbox">
                 <input type="checkbox" id="firsttime" name="firsttime" />
@@ -109,13 +104,13 @@
         </div>
       </div>
 
-      <span id="version">v0.5 05/09/2022</span>
+      <span id="version">v0.6 10/06/2022</span>
       <div class="mapheader">
         <section class="options">
           <div class="filters all">
             <span>FILTERS</span>
             <input type="checkbox" id="filters" name="filters" />
-            <label for="filters">filters</label>
+            <label class="ref" for="filters">filters</label>
           </div>
           <div class="dropdown" data-control="checkbox-dropdown">
             <span>Categories</span>
@@ -237,12 +232,12 @@
           <div class="filters live">
             <span>Live</span>
             <input type="checkbox" id="live" name="live" />
-            <label for="live">Live</label>
+            <label class="ref" for="live">Live</label>
           </div>
           <div class="filters HD">
             <span>HD</span>
             <input type="checkbox" id="hd" name="hd" />
-            <label for="hd">HD</label>
+            <label class="ref" for="hd">HD</label>
           </div>
         </section>
 
