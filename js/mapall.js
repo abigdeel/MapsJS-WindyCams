@@ -53,6 +53,8 @@ function restoreOptions() {
   }
   if (localStorage.filters) {
     filters.checked = JSON.parse(localStorage.filters);
+  } else {
+    filters.checked = true;
   }
   if (localStorage.catName) {
     category.curr = document.querySelector(`input[value=${localStorage.catName}]`);
